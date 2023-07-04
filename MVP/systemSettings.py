@@ -8,6 +8,8 @@ Date Created:   04/07/2023
 
 # imports
 
+# global vars
+
 # main function for system settings
 def systemSettings():
     pass

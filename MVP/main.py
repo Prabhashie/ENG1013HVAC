@@ -13,6 +13,9 @@ Date Created:   04/07/2023
 from controlSystem import controlSystem
 from systemSettings import systemSettings
 from graphing import graphing
+from shared import *
+
+# global vars
 
 """
 Main function to display system menu

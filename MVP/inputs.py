@@ -7,7 +7,7 @@ Date Created:   04/07/2023
 """
 
 # imports
-from pymata4 import pymata4
+from shared import *
 import math
 import time
 
@@ -22,30 +22,29 @@ c3 = 2.019202697e-07
 
 """
 Function to obtain average temperature reading over 3 seconds
-Params: board       -> Pymata4 board instance
+Params: None
 Return: tempReading -> Average temperature value over 3s
 """
-def readThermistor(board):
+def readThermistor():
     board.set_pin_mode_analog_input(thermistorPin) # callback function not set as temperature values are averaged over time
     startTime = time.time()
     currTime = time.time()
     tempVals = []
 
-    while (currTime - startTime < 3): # record temperatures for 3s
-        calculateTemp(board, tempVals)
+    while (currTime - startTime < 3): # record temperatures continuously for 3s
+        calculateTemp(tempVals)
         currTime = time.time()
     
     # filter/ average temperature values by averaging readings in the array
     tempReading = sum(tempVals)/ len(tempVals)
-    return tempReading
+    return tempReading, time.time()
 
 """
 Function to calulate temperature from thermistor voltage reading
-Params: board       -> Pymata4 board instance
-        tempVals    -> array to store temperature values
+Params: tempVals    -> array to store temperature values
 Return: None
 """
-def calculateTemp(board, tempVals):
+def calculateTemp(tempVals):
     thermistorPinReading, _ = board.analog_read(thermistorPin)
     vOut = (vIn / 1023) * thermistorPinReading
     r2 = r1 * ((vIn/vOut) - 1)
