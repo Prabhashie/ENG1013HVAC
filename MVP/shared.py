@@ -10,5 +10,8 @@ Date Created:   04/07/2023
 from pymata4 import pymata4
 
 # global vars
-board = pymata4.Pymata4() # arduino board instance
+PIN = 1234
+# board = pymata4.Pymata4() # arduino board instance
+ambientTempHigh = 25
+ambientTempLow = 20
 temperatureMap = [] # list of tempratures and their recorded times for the last 20s -> to be used for graphing
