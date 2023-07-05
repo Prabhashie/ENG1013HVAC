@@ -16,6 +16,8 @@ redLEDPin = 1
 blueLEDPin = 2
 lowLEDPin = 3
 highLEDPin = 4
+eightSegPins = [i for i in range(1,9)]
+digitPins = [9, 10, 11, 12]
 
 """
 Function to control LED array and console output based on temperature reading
@@ -87,9 +89,25 @@ def printToConsole(message):
     print(message)
 
 """
-Function to display a 4-digit alphanumeric message
+Function to display a 4-digit alphanumeric message - without shift reg and no scrolling
 Params: message     -> Message to print
+        duration    -> duration of display in seconds
 Return: None
 """
-def control7Seg(message):
-    pass
+def control7Seg(message, duration):
+    message = message[:4] # make sure the message has only 4 chars
+    setDigitalOutputPinMode(eightSegPins)
+    setDigitalOutputPinMode(digitPins)
+    startTime = 0
+    while startTime < duration:
+        for i in range(len(message)): # 1st pin in digitPins is connected to left most digit in the 4-digit 8 seg
+            binCode = alphabet[message[i].upper()] # takes chars in message from left to right
+            board.digital_write(digitPins[i], 0)
+            for j in range(8): # write from segment a - dp assuming 1st pin in eightSegPins is connected to seg 'a'
+                if (binCode) & (PIN_MASK >> j):
+                    board.digital_write(eightSegPins[j], 1)
+                else:
+                    board.digital_write(eightSegPins[j], 0)
+            startTime += 0.25
+            time.sleep(0.25) # each char is displayed for 0.25s
+            board.digital_write(digitPins[i], 1)
