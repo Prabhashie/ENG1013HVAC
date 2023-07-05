@@ -8,6 +8,7 @@ Date Created:   04/07/2023
 
 # imports
 from shared import *
+import time
 
 # global vars
 
@@ -17,11 +18,14 @@ Params: None
 Return: None
 """
 def systemSettings():
-    while True:
+    pinEntries = 1
+    global invalidPINTimeoutStart, systemSettingsStartTime
+    systemSettingsStartTime = time.time()
+    while (pinEntries <= 3): # lock system settings if incorrect PIN entered 3 times 
         try:
             userInput = int(input("Please enter the PIN to view/ update system parameters: "))
             if userInput == PIN:
-                while True:
+                while (time.time() - systemSettingsStartTime) <= systemSettingsAccessDuration: # timeout if admin access duration exceeded
                     print("\nPlease select from below options: \n1. View system parameters \n2. Update system parameters")
                     try:
                         userInput = int(input("Your choice: "))
@@ -38,10 +42,24 @@ def systemSettings():
                         viewParams()
                     elif userInput == 2:
                         updateParams()
+                print("\nAdmin access timeout!")
+                continue
             else:
-                print("Incorrect PIN entered! Please try again.\n")     
+                if pinEntries < 3:
+                    print(f"Incorrect PIN entered! Please try again. You have {3 - pinEntries} attempt(s) left!\n")
+                    pinEntries += 1
+                else:
+                    print("You entered an incorrect PIN 3 times! System settings access denied for 2 minutes.") 
+                    invalidPINTimeoutStart = time.time()
+                    return  
         except ValueError:
-            print("Incorrect PIN entered! Please try again.\n")
+            if pinEntries < 3:
+                print(f"Incorrect PIN entered! Please try again. You have {3 - pinEntries} attempt(s) left!\n")
+                pinEntries += 1
+            else:
+                print("You entered an incorrect PIN 3 times! System settings access denied for 2 minutes.")
+                invalidPINTimeoutStart = time.time()
+                return
         except KeyboardInterrupt:
             print("\nExiting system settings...\n")
             return
@@ -52,8 +70,9 @@ Params: None
 Return: None
 """   
 def viewParams():
-    print("Current system parameters are: \n")
-    print(f"Ambient temperatue range: {ambientTempLow} - {ambientTempHigh} C\n")
+    if (time.time() - systemSettingsStartTime) <= systemSettingsAccessDuration: # timeout if admin access duration exceeded
+        print("Current system parameters are: \n")
+        print(f"Ambient temperatue range: {ambientTempLow} - {ambientTempHigh} C\n")
 
 """
 Function to update system parameters
@@ -64,7 +83,7 @@ def updateParams():
     print("Current system parameters are: \n")
     print(f"Ambient temperatue range: {ambientTempLow} - {ambientTempHigh} C\n")
 
-    while True:
+    while (time.time() - systemSettingsStartTime) <= systemSettingsAccessDuration: # timeout if admin access duration exceeded
         print("Please choose which system parameter to update: \n1. Ambient low threshold \n2. Ambient high threshold")
         try:
             userInput = int(input("Your choice: "))
