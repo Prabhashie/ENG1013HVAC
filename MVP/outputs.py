@@ -46,18 +46,17 @@ def controlLEDs(currTemp, trend):
     if currTemp < ambientTempLow: # if current temperature is lower than goal threshold
         # a RED LED turns on to indicate that the fan should move heat into the room
         board.digital_write(blueLEDPin, 0)
-        board.digital_write(redLEDPin, 1) # CHECK: would this be left lit forever if not set to 0?
-        time.sleep(2) # pause the execution of your Arduino program for 2s
-        # CHECK: need to set to low after sleep?
+        board.digital_write(redLEDPin, 1)
+        # time.sleep(2) # pause the execution of your Arduino program for 2s
         # 2 LEDs should be used, to indicate a low and high ventilation speed
         if (trend <= 0):
             board.digital_write(highLEDPin, 0)
             board.digital_write(lowLEDPin, 1)
-            time.sleep(2)
+            # time.sleep(2)
         else:
             board.digital_write(lowLEDPin, 0)
             board.digital_write(highLEDPin, 1)
-            time.sleep(2)
+            # time.sleep(2)
         # a console alert is printed.
         message = f"Current temperature {currTemp} is less than the lower goal threshold {ambientTempLow} C."
         printToConsole(message)
@@ -65,27 +64,32 @@ def controlLEDs(currTemp, trend):
         # a BLUE LED turns on to indicate that the fan should move heat out of the room
         board.digital_write(redLEDPin, 0)
         board.digital_write(blueLEDPin, 1) 
-        time.sleep(2)
+        # time.sleep(2)
         # 2 LEDs should be used, to indicate a low and high ventilation speed
         if (trend <= 0):
             board.digital_write(highLEDPin, 0)
             board.digital_write(lowLEDPin, 1)
-            time.sleep(2)
+            # time.sleep(2)
         else:
             board.digital_write(lowLEDPin, 0)
             board.digital_write(highLEDPin, 1)
-            time.sleep(2)
+            # time.sleep(2)
         # a console alert is printed.
         message = f"Current temperature {currTemp} is higher than the upper goal threshold {ambientTempHigh} C."
         printToConsole(message)
 
 """
 Function to print outputs to console
-Params: message     -> Message to pprint
+Params: message     -> Message to print
 Return: None
 """
 def printToConsole(message):
     print(message)
 
-def control7Seg():
+"""
+Function to display a 4-digit alphanumeric message
+Params: message     -> Message to print
+Return: None
+"""
+def control7Seg(message):
     pass
