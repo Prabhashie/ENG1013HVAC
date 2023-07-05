@@ -18,7 +18,9 @@ from shared import *
 # global vars
 
 """
-Main function to display system menu
+Function to display system menu
+Params: None
+Return: None
 """
 def main():
     # get user input

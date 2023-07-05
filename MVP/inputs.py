@@ -26,7 +26,7 @@ Params: None
 Return: tempReading -> Average temperature value over 3s
 """
 def readThermistor():
-    board.set_pin_mode_analog_input(thermistorPin) # callback function not set as temperature values are averaged over time
+    setAnalogInputPinMode([thermistorPin]) # callback function not set as temperature values are averaged over time
     startTime = time.time()
     currTime = time.time()
     tempVals = []
