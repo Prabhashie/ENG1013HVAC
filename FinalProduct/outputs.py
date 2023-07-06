@@ -111,3 +111,30 @@ def control7Seg(message, duration):
             startTime += 0.25
             time.sleep(0.25) # each char is displayed for 0.25s
             board.digital_write(digitPins[i], 1)
+
+
+
+
+            """
+Displays a scrolling message using the four_character_string() function
+Replace spaces with underlines _ for the string when calling this function. 
+Inputs:
+string: The string of alphanumeric characters to be displayed on the seven segment display
+scrollDuration: The duration each 4 letter substring of the scrolled messsage will display
+displayDuration: The amount of time the scrolled message will be displayed for.
+"""
+def display_scrolling_string(string, scrollDuration, displayDuration):
+    scrollingStartTime = time.time()
+    stringLength = len(string)
+    while time.time()-scrollingStartTime<displayDuration:
+        for i in range(stringLength - 3):
+            substring = string[i : i + 4]
+            display_four_character_string(substring, scrollDuration)
+    for i in [1,2,3,4,5,6,7,8]:
+        board.digital_write(pinSRCLK,0)
+        board.digital_write(pinSER,0)
+        board.digital_write(pinSRCLK,1)
+    board.digital_pin_write(pinRCLK,1)
+    board.digital_pin_write(pinRCLK,0)
+    for i in digitPins:
+        board.digital_write(i,1)
