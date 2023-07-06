@@ -1,9 +1,12 @@
+from shared import *
 from pymata4 import pymata4
 import time
+import math
+import sys
 
-board = pymata4.Pymata4() # arduino board instance
-board.set_pin_mode_digital_output(7)
-board.set_pin_mode_digital_output(8)
+# board = pymata4.Pymata4() # arduino board instance
+# board.set_pin_mode_digital_output(7)
+# board.set_pin_mode_digital_output(8)
 
 # test 1 => 
 # keeps the LED on forever, even after the program has finished execution

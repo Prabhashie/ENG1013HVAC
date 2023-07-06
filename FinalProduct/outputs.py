@@ -89,34 +89,42 @@ def printToConsole(message):
     print(message)
 
 """
-Function to display a 4-digit alphanumeric message - without shift reg and no scrolling
-Params: message     -> Message to print
-        duration    -> duration of display in seconds
+Function to display a 4-digit alphanumeric message -with scrolling
+Params: string          -> string to print
+        scrollDuration  -> duration to scroll
+        displayDuration -> duration of display in seconds
 Return: None
 """
-def control7Seg(message, duration):
-    message = message[:4] # make sure the message has only 4 chars
-    setDigitalOutputPinMode(eightSegPins)
-    setDigitalOutputPinMode(digitPins)
-    startTime = 0
-    while startTime < duration:
-        for i in range(len(message)): # 1st pin in digitPins is connected to left most digit in the 4-digit 8 seg
-            binCode = alphabet[message[i].upper()] # takes chars in message from left to right
-            board.digital_write(digitPins[i], 0)
-            for j in range(8): # write from segment a - dp assuming 1st pin in eightSegPins is connected to seg 'a'
-                if (binCode) & (PIN_MASK >> j):
-                    board.digital_write(eightSegPins[j], 1)
-                else:
-                    board.digital_write(eightSegPins[j], 0)
-            startTime += 0.25
-            time.sleep(0.25) # each char is displayed for 0.25s
-            board.digital_write(digitPins[i], 1)
+def display_scrolling_string(string, scrollDuration, displayDuration):
+    scrollingStartTime = time.time()
+    stringLength = len(string)
+    while time.time()-scrollingStartTime<displayDuration:
+        for i in range(stringLength - 3):
+            substring = string[i : i + 4]
+            display_four_character_string(substring, scrollDuration)
+    for i in [1,2,3,4,5,6,7,8]:
+        board.digital_write(pinSRCLK,0)
+        board.digital_write(pinSER,0)
+        board.digital_write(pinSRCLK,1)
+    board.digital_pin_write(pinRCLK,1)
+    board.digital_pin_write(pinRCLK,0)
+    for i in digitPins:
+        board.digital_write(i,1)
 
-"""
-Displays a character on the seven segment display by turning on pins 
-which correspond to a dictionary entry for the appropriate pins for that character. 
-The digit this is displayed on may also be selected. 
-"""
+def display_four_character_string(string,duration):
+    fourCharacterStartTime = time.time()
+    while time.time()-fourCharacterStartTime<duration:
+        for i in range(4):
+            display_character(string[i],i+1)
+    for i in [1,2,3,4,5,6,7,8]:
+        board.digital_write(pinSRCLK,0)
+        board.digital_write(pinSER,0)
+        board.digital_write(pinSRCLK,1)
+    board.digital_pin_write(pinRCLK,1)
+    board.digital_pin_write(pinRCLK,0)
+    for i in digitPins:
+        board.digital_write(i,1)
+
 def display_character(character,digit):
     # digit 1 is pin 16
     # digit 2 is pin 17
@@ -166,49 +174,3 @@ def display_character(character,digit):
     if digit == 4:
         board.digital_pin_write(19,0)
     time.sleep(0.025)
-
-"""
-Uses the display_character function to display a 4 digit string by rapidly switching
-between the character and digit displayed. 
-Can be used to replace time.sleep() in code to actively display something instead of sleeping. 
-Inputs: 
-string: The string of alphanumeric characters to be displayed on the seven segment display
-duration: The amount of time the string will be displayed for.
-"""
-def display_four_character_string(string,duration):
-    fourCharacterStartTime = time.time()
-    while time.time()-fourCharacterStartTime<duration:
-        for i in range(4):
-            display_character(string[i],i+1)
-    for i in [1,2,3,4,5,6,7,8]:
-        board.digital_write(pinSRCLK,0)
-        board.digital_write(pinSER,0)
-        board.digital_write(pinSRCLK,1)
-    board.digital_pin_write(pinRCLK,1)
-    board.digital_pin_write(pinRCLK,0)
-    for i in digitPins:
-        board.digital_write(i,1)
-
-            """
-Displays a scrolling message using the four_character_string() function
-Replace spaces with underlines _ for the string when calling this function. 
-Inputs:
-string: The string of alphanumeric characters to be displayed on the seven segment display
-scrollDuration: The duration each 4 letter substring of the scrolled messsage will display
-displayDuration: The amount of time the scrolled message will be displayed for.
-"""
-def display_scrolling_string(string, scrollDuration, displayDuration):
-    scrollingStartTime = time.time()
-    stringLength = len(string)
-    while time.time()-scrollingStartTime<displayDuration:
-        for i in range(stringLength - 3):
-            substring = string[i : i + 4]
-            display_four_character_string(substring, scrollDuration)
-    for i in [1,2,3,4,5,6,7,8]:
-        board.digital_write(pinSRCLK,0)
-        board.digital_write(pinSER,0)
-        board.digital_write(pinSRCLK,1)
-    board.digital_pin_write(pinRCLK,1)
-    board.digital_pin_write(pinRCLK,0)
-    for i in digitPins:
-        board.digital_write(i,1)

@@ -14,6 +14,7 @@ from controlSystem import controlSystem
 from systemSettings import systemSettings
 from graphing import graphing
 from shared import *
+import sys
 
 # global vars
 
@@ -38,7 +39,7 @@ def main():
             print("Please enter a value between 1 and 3.\n")
         except KeyboardInterrupt:
             print("\nExiting system...\n")
-            exit()
+            sys.exit(0)
 
         # call relavent function
         if userInput == 1:
