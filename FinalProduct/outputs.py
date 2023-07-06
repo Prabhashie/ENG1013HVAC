@@ -112,8 +112,82 @@ def control7Seg(message, duration):
             time.sleep(0.25) # each char is displayed for 0.25s
             board.digital_write(digitPins[i], 1)
 
+"""
+Displays a character on the seven segment display by turning on pins 
+which correspond to a dictionary entry for the appropriate pins for that character. 
+The digit this is displayed on may also be selected. 
+"""
+def display_character(character,digit):
+    # digit 1 is pin 16
+    # digit 2 is pin 17
+    # digit 3 is pin 18
+    # digit 4 is pin 19
+    # segment a is pin h on shift register
+    # segment b is pin b on shift register
+    # segment c is pin c on shift register
+    # segment d is pin d on shift register
+    # segment e is pin e on shift register
+    # segment f is pin f on shift register
+    # segment g is pin g on shift register
+    # Thermistor buzzer is pin a on shift register
+    # TODO clear the shift register here
+    segments = charMap[character]
+    for i in digitPins:
+        board.digital_write(i,1)
+    for i in [1,2,3,4,5,6,7,8]:
+        board.digital_write(pinSRCLK,0)
+        board.digital_write(pinSER,0)
+        board.digital_write(pinSRCLK,1)
+    board.digital_pin_write(pinRCLK,1)
+    board.digital_pin_write(pinRCLK,0)
+    for i in [0,6,5,4,3,2,1]:
+        if segments[i] == 1:
+            board.digital_write(pinSRCLK,0)
+            board.digital_write(pinSER,1)
+            board.digital_write(pinSRCLK,1)
+        elif segments[i] == 0:
+            board.digital_write(pinSRCLK,0)
+            board.digital_write(pinSER,0)
+            board.digital_write(pinSRCLK,1)
+    board.digital_write(pinSRCLK,0)
+    if buzzer == True:
+        board.digital_write(pinSER,1)
+    else:
+        board.digital_write(pinSER,0)
+    board.digital_write(pinSRCLK,1)   
+    board.digital_pin_write(pinRCLK,1)
+    board.digital_pin_write(pinRCLK,0)
+    if digit == 1:
+        board.digital_pin_write(16,0)
+    if digit == 2:
+        board.digital_pin_write(17,0)
+    if digit == 3:
+        board.digital_pin_write(18,0)
+    if digit == 4:
+        board.digital_pin_write(19,0)
+    time.sleep(0.025)
 
-
+"""
+Uses the display_character function to display a 4 digit string by rapidly switching
+between the character and digit displayed. 
+Can be used to replace time.sleep() in code to actively display something instead of sleeping. 
+Inputs: 
+string: The string of alphanumeric characters to be displayed on the seven segment display
+duration: The amount of time the string will be displayed for.
+"""
+def display_four_character_string(string,duration):
+    fourCharacterStartTime = time.time()
+    while time.time()-fourCharacterStartTime<duration:
+        for i in range(4):
+            display_character(string[i],i+1)
+    for i in [1,2,3,4,5,6,7,8]:
+        board.digital_write(pinSRCLK,0)
+        board.digital_write(pinSER,0)
+        board.digital_write(pinSRCLK,1)
+    board.digital_pin_write(pinRCLK,1)
+    board.digital_pin_write(pinRCLK,0)
+    for i in digitPins:
+        board.digital_write(i,1)
 
             """
 Displays a scrolling message using the four_character_string() function
