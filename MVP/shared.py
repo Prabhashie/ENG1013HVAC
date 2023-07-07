@@ -14,7 +14,7 @@ PIN = 1234
 board = pymata4.Pymata4() # arduino board instance
 ambientTempHigh = 25
 ambientTempLow = 22
-temperatureMap = [(1,2),(2,3),(3,4)] # list of tempratures and their recorded times for the last 20s -> to be used for graphing
+temperatureMap = [] # list of tempratures and their recorded times for the last 20s -> to be used for graphing
 # for 8 segment display -> # a-g,dp
 alphabet = {
     "A": int("11101110", 2),

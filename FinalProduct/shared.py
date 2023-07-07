@@ -12,9 +12,12 @@ from pymata4 import pymata4
 # global vars
 PIN = 1234
 board = pymata4.Pymata4() # arduino board instance
+# TODO: ambient temperatured will be measured using the 2nd thermistor
+# ambient temperature to be decided by +/- diff values
 ambientTempHigh = 25
 ambientTempLow = 20
-temperatureMap = [(1,2),(2,3),(3,4)] # list of tempratures and their recorded times for the last 20s -> to be used for graphing
+# TODO: Other user modifiable parameters
+temperatureMap = [] # list of tempratures and their recorded times for the last 20s -> to be used for graphing
 # for 8 segment display -> # a-g,dp
 alphabet = {
     "A": int("11101110", 2),
@@ -53,6 +56,45 @@ alphabet = {
     "7": int("11100000", 2),
     "8": int("11111110", 2),
     "9": int("11110110", 2),
+}
+charMap = {
+    '0': [1, 1, 1, 1, 1, 1, 0],
+    '1': [0, 1, 1, 0, 0, 0, 0],
+    '2': [1, 1, 0, 1, 1, 0, 1],
+    '3': [1, 1, 1, 1, 0, 0, 1],
+    '4': [0, 1, 1, 0, 0, 1, 1],
+    '5': [1, 0, 1, 1, 0, 1, 1],
+    '6': [1, 0, 1, 1, 1, 1, 1],
+    '7': [1, 1, 1, 0, 0, 0, 0],
+    '8': [1, 1, 1, 1, 1, 1, 1],
+    '9': [1, 1, 1, 1, 0, 1, 1],
+    'A': [1, 1, 1, 0, 1, 1, 1],
+    'B': [0, 0, 1, 1, 1, 1, 1],
+    'C': [1, 0, 0, 1, 1, 1, 0],
+    'D': [0, 1, 1, 1, 1, 0, 1],
+    'E': [1, 0, 0, 1, 1, 1, 1],
+    'F': [1, 0, 0, 0, 1, 1, 1],
+    'G': [1, 0, 1, 1, 1, 1, 0],
+    'H': [0, 0, 1, 0, 1, 1, 1],
+    'I': [0, 0, 0, 0, 1, 1, 0],
+    'J': [0, 1, 1, 1, 1, 0, 0],
+    'K': [1, 0, 1, 0, 1, 1, 1],
+    'L': [0, 0, 0, 1, 1, 1, 0],
+    'M': [1, 0, 1, 0, 1, 0, 0],
+    'N': [1, 1, 1, 0, 1, 1, 0],
+    'O': [1, 1, 1, 1, 1, 1, 0],
+    'P': [1, 1, 0, 0, 1, 1, 1],
+    'Q': [1, 1, 1, 0, 0, 1, 1],
+    'R': [0, 0, 0, 1, 0, 1, 0],
+    'S': [1, 0, 1, 1, 0, 1, 1],
+    'T': [0, 0, 0, 1, 1, 1, 1],
+    'U': [0, 1, 1, 1, 1, 1, 0],
+    'V': [0, 1, 1, 1, 0, 1, 0],
+    'W': [0, 1, 0, 1, 0, 1, 0],
+    'X': [0, 1, 1, 0, 1, 1, 1],
+    'Y': [0, 1, 1, 1, 0, 1, 1],
+    'Z': [1, 1, 0, 1, 0, 0, 1],
+    '_': [0, 0, 0, 0, 0, 0, 0]
 }
 PIN_MASK = 0b10000000
 invalidPINTimeoutStart = 0 # start time for system lock due to invalid PIN

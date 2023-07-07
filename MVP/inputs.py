@@ -31,12 +31,12 @@ def readThermistor():
     currTime = time.time()
     tempVals = []
 
-    while (currTime - startTime < 3): # record temperatures continuously for 3s
+    while (currTime - startTime < 1): # record temperatures continuously for 1s
         calculateTemp(tempVals)
         currTime = time.time()
     
     # filter/ average temperature values by averaging readings in the array
-    tempReading = sum(tempVals)/ len(tempVals)
+    tempReading = sum(tempVals)/ len(tempVals) # temperature stored every 1s
     print(f"Current Temperature is {tempReading} C")
     return tempReading, time.time()
 
@@ -54,7 +54,3 @@ def calculateTemp(tempVals):
     tF = (1.0 / (c1 + c2*logR2 + c3*logR2**3)) # temperature in Fahrenheit 
     tC = tF - 273.15 # temperature in Calcius
     tempVals.append(tC)
-
-
-
-

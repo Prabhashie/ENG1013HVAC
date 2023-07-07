@@ -9,15 +9,41 @@ Date Created:   04/07/2023
 # imports
 from shared import *
 from matplotlib import pyplot
+import sys
+from datetime import datetime
 
 # global vars
 
 """
-Function to graph temperature variation over the last 20s
+Function to produce graphs
 Params: None
 Return: None
 """
 def graphing():
+    # loop if an incorrect input is entered
+    while True:
+        print("Please select from the below options: \n1. Time Vs. Temp \n2. TODO \n3. TODO \n") 
+        try:
+            userInput = int(input("Your Choice: "))
+            if (userInput not in [1,2,3]):
+                print("Invalid selection! Please choose again.\n")
+                continue
+        except ValueError:
+            print("Please enter a value between 1 and 3.\n")
+        except KeyboardInterrupt:
+            print("\nExiting system...\n")
+            return
+
+        # call relavent function
+        if userInput == 1:
+            graphTimeVsTemp()
+        elif userInput == 2:
+            pass
+        elif userInput == 3:
+            pass
+    
+
+def graphTimeVsTemp():
     timeData = []
     temperatureData = []
     for item in temperatureMap:
@@ -29,3 +55,4 @@ def graphing():
     pyplot.ylabel('Temperature (C)')
     pyplot.title("Temperature variation inside the room within the last 20s")
     pyplot.show()
+    pyplot.savefig(f'results/TimeVsTemp_{datetime.now().strftime("%Y%m%d%H%M%S")}')

@@ -40,6 +40,4 @@ def controlSystem():
     except KeyboardInterrupt:
         print("\nExiting control system...")
         board.shutdown()
-        sys.exit(0)
-
-controlSystem()
+        return

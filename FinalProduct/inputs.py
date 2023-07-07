@@ -12,9 +12,9 @@ import math
 import time
 
 # global vars
-thermistorPin = 1 # analog thermistor pin
+thermistorPin = 0 # analog thermistor pin
 vIn = 5 # input voltage in Volts
-r1 = 5 # known resistance value in Ohms
+r1 = 100000 # known resistance value in Ohms
 # steinhart - hart coefficients
 c1 = 1.009249522e-03
 c2 = 2.378405444e-04
@@ -36,7 +36,8 @@ def readThermistor():
         currTime = time.time()
     
     # filter/ average temperature values by averaging readings in the array
-    tempReading = sum(tempVals)/ len(tempVals)
+    tempReading = sum(tempVals)/ len(tempVals) # temperature stored every 3s
+    print(f"Current Temperature is {tempReading} C")
     return tempReading, time.time()
 
 """
@@ -45,6 +46,7 @@ Params: tempVals    -> array to store temperature values
 Return: None
 """
 def calculateTemp(tempVals):
+    time.sleep(0.05)
     thermistorPinReading, _ = board.analog_read(thermistorPin)
     vOut = (vIn / 1023) * thermistorPinReading
     r2 = r1 * ((vIn/vOut) - 1)
@@ -53,6 +55,11 @@ def calculateTemp(tempVals):
     tC = tF - 273.15 # temperature in Calcius
     tempVals.append(tC)
 
+# TODO: read push buttons
 
-
-
+# TODO: read ultra-sonic sensor
+    # calibration
+    # filter -> 1s
+# TODO: read LDR
+    # calibration
+    # filter -> 1s
