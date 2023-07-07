@@ -13,9 +13,10 @@ Date Created:   04/07/2023
 from controlSystem import controlSystem
 from systemSettings import systemSettings
 from graphing import graphing
-from shared import *
+import shared
 import time
 import sys
+import math
 
 # global vars
 
@@ -47,11 +48,12 @@ def main():
             print("\nTaking you to control system...")
             controlSystem()
         elif userInput == 2:
-            if (time.time() > invalidPINTimeoutStart + 120):
+            print(shared.invalidPINTimeoutStart)
+            if (time.time() > shared.invalidPINTimeoutStart + 120):
                 print("\nTaking you to system settings...")
                 systemSettings()
             else:
-                print(f"\nSystem settings currently locked. Please try in {120-(time.time()-invalidPINTimeoutStart)} seconds")
+                print(f"\nSystem settings currently locked. Please try in {math.ceil(120-(time.time()-shared.invalidPINTimeoutStart))} seconds")
         elif userInput == 3:
             print("\nTaking you to graphing...")
             graphing()

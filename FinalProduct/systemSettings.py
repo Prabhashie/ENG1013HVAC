@@ -7,7 +7,7 @@ Date Created:   04/07/2023
 """
 
 # imports
-from shared import *
+import shared
 import time
 
 # global vars
@@ -19,13 +19,14 @@ Return: None
 """
 def systemSettings():
     pinEntries = 1
-    global invalidPINTimeoutStart, systemSettingsStartTime
-    systemSettingsStartTime = time.time()
+    shared.systemSettingsStartTime = time.time()    # importing * and using global doesn't work 
+                                                    # global only makes the variable global for the context of the module (file)
+                                                    # https://discuss.python.org/t/global-variables-shared-across-modules/16833/2        
     while (pinEntries <= 3): # lock system settings if incorrect PIN entered 3 times 
         try:
             userInput = int(input("Please enter the PIN to view/ update system parameters: "))
-            if userInput == PIN:
-                while (time.time() - systemSettingsStartTime) <= systemSettingsAccessDuration: # timeout if admin access duration exceeded
+            if userInput == shared.PIN:
+                while (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
                     print("\nPlease select from below options: \n1. View system parameters \n2. Update system parameters")
                     try:
                         userInput = int(input("Your choice: "))
@@ -50,7 +51,7 @@ def systemSettings():
                     pinEntries += 1
                 else:
                     print("You entered an incorrect PIN 3 times! System settings access denied for 2 minutes.") 
-                    invalidPINTimeoutStart = time.time()
+                    shared.invalidPINTimeoutStart = time.time()
                     return  
         except ValueError:
             if pinEntries < 3:
@@ -58,7 +59,7 @@ def systemSettings():
                 pinEntries += 1
             else:
                 print("You entered an incorrect PIN 3 times! System settings access denied for 2 minutes.")
-                invalidPINTimeoutStart = time.time()
+                shared.invalidPINTimeoutStart = time.time()
                 return
         except KeyboardInterrupt:
             print("\nExiting system settings...\n")
@@ -70,9 +71,9 @@ Params: None
 Return: None
 """   
 def viewParams():
-    if (time.time() - systemSettingsStartTime) <= systemSettingsAccessDuration: # timeout if admin access duration exceeded
+    if (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
         print("Current system parameters are: \n")
-        print(f"Ambient temperatue range: {ambientTempLow} - {ambientTempHigh} C\n")
+        print(f"Ambient temperatue range: {shared.ambientTempLow} - {shared.ambientTempHigh} C\n")
 
 """
 Function to update system parameters
@@ -81,9 +82,9 @@ Return: None
 """
 def updateParams():
     print("Current system parameters are: \n")
-    print(f"Ambient temperatue range: {ambientTempLow} - {ambientTempHigh} C\n")
+    print(f"Ambient temperatue range: {shared.ambientTempLow} - {shared.ambientTempHigh} C\n")
 
-    while (time.time() - systemSettingsStartTime) <= systemSettingsAccessDuration: # timeout if admin access duration exceeded
+    while (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
         print("Please choose which system parameter to update: \n1. Ambient low threshold \n2. Ambient high threshold")
         try:
             userInput = int(input("Your choice: "))
@@ -97,8 +98,8 @@ def updateParams():
             return
         # update relavent parameters
         if userInput == 1:
-            ambientTempLow = userInput
+            shared.ambientTempLow = userInput
         elif userInput == 2:
-            ambientTempHigh = userInput
+            shared.ambientTempHigh = userInput
         print("System parameters updated successfully!")
         return
