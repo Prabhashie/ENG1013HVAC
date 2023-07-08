@@ -35,7 +35,7 @@ def controlSystem():
     except KeyboardInterrupt:
         print("\nExiting control system...")
         # TODO: turn off all control system outputs before shutting down the board
-        shared.board.shutdown()
+        # shared.board.shutdown() - DO NOT shut the board down here, will affect graphing
         return
  
 """

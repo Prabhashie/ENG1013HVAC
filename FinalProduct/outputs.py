@@ -16,7 +16,6 @@ redLEDPin = 7
 blueLEDPin = 8
 lowLEDPin = 3
 highLEDPin = 4
-eightSegPins = [i for i in range(1,9)]
 digitPins = [9, 10, 11, 12]
 pinSRCLK = 1
 pinSER = 2
@@ -33,6 +32,12 @@ Return: None
 """
 def displayTemp(currTemp, trend):
     if ambientTempLow <= currTemp <= ambientTempHigh: # if current temperature is within goal temp range
+        # fans should be off
+        board.digital_write(blueLEDPin, 0)
+        board.digital_write(redLEDPin, 0)
+        board.digital_write(highLEDPin, 0)
+        board.digital_write(lowLEDPin, 0)
+
         message = f"Current temperature {currTemp} is within the goal range {ambientTempLow} - {ambientTempHigh} C."
         printToConsole(message)
     else:
@@ -96,34 +101,10 @@ def printToConsole(message):
     print(message)
 
 """
-Function to display a 4-digit alphanumeric message - without shift reg and no scrolling
-Params: message     -> Message to print
-        duration    -> duration of display in seconds
-Return: None
-"""
-def control7Seg(message, duration):
-    message = message[:4] # make sure the message has only 4 chars
-    setDigitalOutputPinMode(eightSegPins)
-    setDigitalOutputPinMode(digitPins)
-    startTime = 0
-    while startTime < duration:
-        for i in range(len(message)): # 1st pin in digitPins is connected to left most digit in the 4-digit 8 seg
-            binCode = alphabet[message[i].upper()] # takes chars in message from left to right
-            board.digital_write(digitPins[i], 0)
-            for j in range(8): # write from segment a - dp assuming 1st pin in eightSegPins is connected to seg 'a'
-                if (binCode) & (PIN_MASK >> j):
-                    board.digital_write(eightSegPins[j], 1)
-                else:
-                    board.digital_write(eightSegPins[j], 0)
-            startTime += 0.25
-            time.sleep(0.25) # each char is displayed for 0.25s
-            board.digital_write(digitPins[i], 1)
-
-"""
 Function to display a 4-digit alphanumeric message with scrolling
 Params: string          -> string to print
-        scrollDuration  -> duration to scroll
-        displayDuration -> duration of display in seconds
+        scrollDuration  -> the duration each 4 letter substring of the scrolled messsage will display
+        displayDuration -> the amount of time the scrolled message will be displayed for
 Return: None
 """
 def display_scrolling_string(string, scrollDuration, displayDuration):
@@ -177,8 +158,8 @@ def display_character(character, digit):
 
     segments = charMap[character]
     for i in digitPins:
-        board.digital_write(i, 1)
-    for _ in range(8): # turn off all digits
+        board.digital_write(i, 1) # turn off all digits
+    for _ in range(8): # clear all the segments and turn off
         board.digital_write(pinSER, 0)
         board.digital_write(pinSRCLK, 1)
         board.digital_write(pinSRCLK, 0)
@@ -186,9 +167,9 @@ def display_character(character, digit):
     board.digital_write(pinRCLK, 1)
     board.digital_write(pinRCLK, 0)
     
-    # pins should be written a - g
+    # pins should be written g - a
     # connect the shift reg to the 7 seg accordingly
-    for i in range(7): # write value to the 7 seg
+    for i in range(6, -1, -1): # write value to the 7 seg
         board.digital_write(pinSER, segments[i])
         board.digital_write(pinSRCLK, 1)
         board.digital_write(pinSRCLK, 0)

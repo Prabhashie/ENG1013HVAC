@@ -1,0 +1,22 @@
+
+# temperatureMap = [(1688802925.168368, 31.001762975359313), (1688802928.3015554, 33.67837517651033), (1688802931.4200087, 34.269746752680426), (1688802934.4823039, 34.22742742053564), (1688802937.5491445, 34.458640193302955), (1688802940.6158848, 34.51409186319104)]
+# graph saving issue
+
+# fix issue when admin access timeout -> allow re-entry
+# capability to view closed door distance
+# capability to modify timeouts
+
+# code the response to the 2nd thermistor
+    # we do not want to equate the temperature inside to temperature outside
+    # ambient temp inside the room is decided based on the user defined ambient thresholds
+    # 2nd thermistor is used to check if we need to move air in from outside when the environment inside the room is not ambient
+    # ex: if inside the room is hot and outside is hotter, even if we want to move heat out, we shouldn't do this since air outside is hotter
+    # ex: if inside is cold and outside is colder, even if we want to move heat in, we shouldn't do this since air outside is colder  
+
+# what is left to test
+# 1. 2nd thermistor
+# 2. push button
+# 3. LED sequence - as the temperature rises, light more LEDs with shift reg
+# 4. LED flash
+# 5. single buzzer for rising and falling running on dedicated 556 timer (2 555 timers)
+# 6. ultrasonic and LDR output -> using a buzzer

@@ -43,6 +43,10 @@ def main():
             print("Please enter a value between 1 and 3.\n")
         except KeyboardInterrupt:
             print("\nExiting system...\n")
+            shared.board.shutdown()
+            sys.exit(0)
+        except:
+            shared.board.shutdown()
             sys.exit(0)
 
         # call relavent function
@@ -50,7 +54,6 @@ def main():
             print("\nTaking you to control system...")
             controlSystem()
         elif userInput == 2:
-            print(shared.invalidPINTimeoutStart)
             if (time.time() > shared.invalidPINTimeoutStart + 120):
                 print("\nTaking you to system settings...")
                 systemSettings()

@@ -47,14 +47,15 @@ def graphTimeVsTemp():
     timeData = []
     temperatureData = []
     for item in temperatureMap:
-        timeData.append(item[0])
+        timeData.append(item[0] - temperatureMap[0][0]) # display the time axis between 0-20s
         temperatureData.append(item[1])
     print("Graphing variation of temperature over past 20s...")
     pyplot.plot(timeData, temperatureData, "*")
     pyplot.xlabel('Time (s)')
     pyplot.ylabel('Temperature (C)')
+    pyplot.xlim([0, 20])
     pyplot.title("Temperature variation inside the room within the last 20s")
+    pyplot.savefig(f'results/TimeVsTemp_{datetime.now().strftime("%Y%m%d%H%M%S")}.png') # https://mljar.com/blog/matplotlib-save-plot/
     pyplot.show()
-    pyplot.savefig(f'results/TimeVsTemp_{datetime.now().strftime("%Y%m%d%H%M%S")}')
 
 # TODO: add remaining graphing choices

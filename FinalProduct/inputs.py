@@ -56,7 +56,7 @@ Params: selector    -> selects which thermistor to read. 0 for outside and 1 for
 Return: None
 """
 def calculateTemp(selector, tempVals):
-    time.sleep(0.01)
+    time.sleep(0.01) # check this time value
     if selector:
         thermistorPinReading, _ = shared.board.analog_read(thermistorPinIn)
     else:
@@ -166,7 +166,7 @@ def calibrateSonarSensor(): # identify the distance to the door when sufficientl
     distVals = []
     for _ in range(10):
         time.sleep(0.01)
-        distVals.append(shared.board.sonar_read(triggerPin))
+        distVals.append(shared.board.sonar_read(triggerPin)[0])
     shared.closedDoorDistance = sum(distVals)/ len(distVals)
 
 """
@@ -187,5 +187,5 @@ def calibrateLDRSensor(): # identify the distance to the door when sufficiently 
     voltageVals = []
     for _ in range(10): # record the voltage across the LDR whe there's ambient lighting
         time.sleep(0.01)
-        voltageVals.append(shared.board.analog_read(ldrPin))
+        voltageVals.append(shared.board.analog_read(ldrPin)[0])
     shared.ambientLightLevel = sum(voltageVals)/ len(voltageVals)

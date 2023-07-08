@@ -44,7 +44,7 @@ def systemSettings():
                     elif userInput == 2:
                         updateParams()
                 print("\nAdmin access timeout!")
-                continue
+                return # returns to main menu if timed out
             else:
                 if pinEntries < 3:
                     print(f"Incorrect PIN entered! Please try again. You have {3 - pinEntries} attempt(s) left!\n")
@@ -74,6 +74,11 @@ def viewParams():
     if (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
         print("Current system parameters are: \n")
         print(f"Ambient temperatue range: {shared.ambientTempLow} - {shared.ambientTempHigh} C\n")
+        if (shared.closedDoorDistance == 0):
+            distance = "Not calibrated yet"
+        else:
+            distance = f"{shared.closedDoorDistance} cm"
+        print(f"Average distance between the door and ultra-sonic sensor: {distance}\n")
 
 """
 Function to update system parameters
@@ -85,10 +90,10 @@ def updateParams():
     print(f"Ambient temperatue range: {shared.ambientTempLow} - {shared.ambientTempHigh} C\n")
 
     while (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
-        print("Please choose which system parameter to update: \n1. Ambient low threshold \n2. Ambient high threshold")
+        print("Please choose which system parameter to update: \n1. Ambient low threshold \n2. Ambient high threshold \n3. Settings access duration ")
         try:
             userInput = int(input("Your choice: "))
-            if (userInput not in [1,2]):
+            if (userInput not in [1, 2, 3]):
                 print("Invalid selection! Please choose again.\n")
                 continue
         except ValueError:
@@ -101,7 +106,7 @@ def updateParams():
         if userInput == 1:
             while (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
                 try:
-                    changeVal = float(input("New value for ambient low threshold: "))
+                    changeVal = float(input("New value for ambient low threshold (Celcius): "))
                     shared.ambientTempLow = changeVal
                     print(f"Ambient low threshold successfully updated to {shared.ambientTempLow} C")
                     return
@@ -114,9 +119,23 @@ def updateParams():
         elif userInput == 2:
             while (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
                 try:
-                    changeVal = float(input("New value for ambient low threshold: "))
+                    changeVal = float(input("New value for ambient low threshold (Celcius): "))
                     shared.ambientTempHigh = changeVal
                     print(f"Ambient high threshold successfully updated to {shared.ambientTempHigh} C")
+                    return
+                except ValueError:
+                    print("Incorrect value entered! Please enter a float value.")
+                    continue
+                except KeyboardInterrupt:
+                    print("\nAborting update...\n")
+                    break
+        elif userInput == 3:
+            while (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
+                try:
+                    changeVal = float(input("New value for settings access duration (seconds): "))
+                    shared.systemSettingsAccessDuration = changeVal
+                    print(f"System settings access duration successfully updated to {shared.systemSettingsAccessDuration} s")
+                    print("Return to main menu and come back to system settings for new admin timeout to get activated!")
                     return
                 except ValueError:
                     print("Incorrect value entered! Please enter a float value.")
