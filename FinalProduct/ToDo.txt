@@ -1,10 +1,5 @@
 
 # temperatureMap = [(1688802925.168368, 31.001762975359313), (1688802928.3015554, 33.67837517651033), (1688802931.4200087, 34.269746752680426), (1688802934.4823039, 34.22742742053564), (1688802937.5491445, 34.458640193302955), (1688802940.6158848, 34.51409186319104)]
-# graph saving issue
-
-# fix issue when admin access timeout -> allow re-entry
-# capability to view closed door distance
-# capability to modify timeouts
 
 # code the response to the 2nd thermistor
     # we do not want to equate the temperature inside to temperature outside
