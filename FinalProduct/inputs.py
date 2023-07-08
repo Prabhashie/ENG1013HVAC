@@ -7,12 +7,16 @@ Date Created:   04/07/2023
 """
 
 # imports
-from shared import *
+import shared
 import math
 import time
 
 # global vars
 thermistorPin = 0 # analog thermistor pin
+pushButtonPin = 1 # digital push button pin
+triggerPin = 2
+echoPin = 3
+ldrPin = 4
 vIn = 5 # input voltage in Volts
 r1 = 100000 # known resistance value in Ohms
 # steinhart - hart coefficients
@@ -25,19 +29,19 @@ Function to obtain average temperature reading over 3 seconds
 Params: None
 Return: tempReading -> Average temperature value over 3s
 """
-def readThermistor():
-    setAnalogInputPinMode([thermistorPin]) # callback function not set as temperature values are averaged over time
+def checkTemperature():
+    shared.setAnalogInputPinMode([thermistorPin]) # callback function not set as temperature values are averaged over time
     startTime = time.time()
     currTime = time.time()
     tempVals = []
 
-    while (currTime - startTime < 3): # record temperatures continuously for 3s
+    while (currTime - startTime < 1): # record temperatures continuously for 1s
         calculateTemp(tempVals)
         currTime = time.time()
     
     # filter/ average temperature values by averaging readings in the array
-    tempReading = sum(tempVals)/ len(tempVals) # temperature stored every 3s
-    print(f"Current Temperature is {tempReading} C")
+    tempReading = sum(tempVals)/ len(tempVals) # temperature stored every 1s
+    print(f"Current temperature is {tempReading} C")
     return tempReading, time.time()
 
 """
@@ -46,8 +50,8 @@ Params: tempVals    -> array to store temperature values
 Return: None
 """
 def calculateTemp(tempVals):
-    time.sleep(0.05)
-    thermistorPinReading, _ = board.analog_read(thermistorPin)
+    time.sleep(0.01)
+    thermistorPinReading, _ = shared.board.analog_read(thermistorPin)
     vOut = (vIn / 1023) * thermistorPinReading
     r2 = r1 * ((vIn/vOut) - 1)
     logR2 = math.log(r2)
@@ -55,11 +59,92 @@ def calculateTemp(tempVals):
     tC = tF - 273.15 # temperature in Calcius
     tempVals.append(tC)
 
-# TODO: read push buttons
+"""
+Function to read push button input - when pressed switches from cooling to heating mode and vice versa (https://www.instructables.com/Understanding-the-Pull-up-Resistor-With-Arduino/)
+Params: None
+Return: True/ False -> if mode should be switched or not
+"""
+def isSwitchMode(): # ideally the push button press should generate an interrupt, but we do not use async calls in the scope of the unit
+    print("Reading push button input...")
+    readings = []
+    for _ in range(10):
+        readings.push(shared.board.digital_read(pushButtonPin)[0])
 
-# TODO: read ultra-sonic sensor
-    # calibration
+    if sum(readings)/ len(readings) >= 0.5: # switch the mode if button pressed
+        return True
+    return False
+
+"""
+Function to read ultrasonic sensor - detect if the room door is open (https://www.instructables.com/Distance-Sensor-Instructable/, 
+                                                                        https://www.youtube.com/watch?v=n_lZCIA25aI&ab_channel=RealPars,
+                                                                        https://learn.adafruit.com/calibrating-sensors?view=all)
+Params: None
+Return: True/ False -> if mode should be switched or not
+"""
+def checkRoomDoor():
+    # pin mode set during calibration
+    # read the sensor
+    startTime = time.time()
+    currTime = time.time()
+    distVals = []
+
+    while (currTime - startTime < 1): # record temperatures continuously for 1s
+        calculateDistance(distVals)
+        currTime = time.time()
+    
+    # filter/ average temperature values by averaging readings in the array
+    distReading = sum(distVals)/ len(distVals) # temperature stored every 1s
+    print(f"Current distance to the door is {distReading} cm")
+    return distReading, time.time()
+
+"""
+Function to calulate the distance from sonar sensor
+Params: tempVals    -> array to store temperature values
+Return: None
+"""
+def calculateDistance(distVals):
+    time.sleep(0.01)
+    # if callback used, it will receive data every time the SENSOR VALUE CHANGES (https://mryslab.github.io/pymata4/pin_modes/)
+    # if the sensor is manually read/ polled as below, will get readings everytime polled, despite the sensor value changed or not
+    sonarPinReading, _ = shared.board.sonar_read(triggerPin) 
+    distVals.append(sonarPinReading) # distances are in cm
+
+# TODO: read ldr sensor
     # filter -> 1s
-# TODO: read LDR
-    # calibration
-    # filter -> 1s
+"""
+Function to calibrate the sonar sensor
+    - place the sensor inside the room
+    - close the door
+    - take readings for some time to identify distance to the door when sufficiently closed
+    - use this as the reference/ closed door distance 
+Params: None
+Return: None
+"""  
+def calibrateSonarSensor(): # identify the distance to the door when sufficiently closed
+    shared.setSonarInputPinMode([triggerPin, echoPin])
+    distVals = []
+    for _ in range(10):
+        time.sleep(0.01)
+        distVals.append(shared.board.sonar_read(triggerPin))
+    shared.closedDoorDistance = sum(distVals)/ len(distVals)
+
+"""
+Function to calibrate the LDR sensor
+    - place the sensor inside the room
+    - close the door
+    - lighting should be normal
+    - take readings for some time to identify the light levels for ambient settings
+    - use this as the reference for ambient lighting
+    - light increases -> resistance decreases -> voltage decreases
+    - https://www.instructables.com/Arduino-and-a-LDR-Light-Dependent-Resistor/
+    - https://kitronik.co.uk/blogs/resources/how-an-ldr-light-dependent-resistor-works
+Params: None
+Return: None
+"""
+def calibrateLDRSensor(): # identify the distance to the door when sufficiently closed
+    shared.setAnalogInputPinMode([ldrPin])
+    voltageVals = []
+    for _ in range(10): # record the voltage across the LDR whe there's ambient lighting
+        time.sleep(0.01)
+        voltageVals.append(shared.board.analog_read(ldrPin))
+    shared.closedDoorDistance = sum(voltageVals)/ len(voltageVals)

@@ -100,6 +100,8 @@ PIN_MASK = 0b10000000
 invalidPINTimeoutStart = 0 # start time for system lock due to invalid PIN
 systemSettingsStartTime = 0 # start time for system settings access
 systemSettingsAccessDuration = 120 # admin access timeout duration
+mode = 1 # 1 if heating 0 if cooling
+closedDoorDistance = 0 # distance to the door from sonar sensor when closed in cm
 
 """
 Function to set pin mode of digital output pins
@@ -127,3 +129,11 @@ Return: None
 def setAnalogInputPinMode(pinList):
     for pin in pinList:
         board.set_pin_mode_analog_input(pin)
+
+"""
+Function to set pin mode of sonar pins
+Params: pinList     -> in the order of trigger pin, echo pin
+Return: None
+"""
+def setSonarInputPinMode(pinList):
+    board.set_pin_mode_sonar(pinList[0], pinList[1]) 

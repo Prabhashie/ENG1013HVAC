@@ -86,12 +86,6 @@ def controlLEDs(currTemp, trend):
         # a console alert is printed.
         message = f"Current temperature {currTemp} is higher than the upper goal threshold {ambientTempHigh} C."
         printToConsole(message)
-        
-        # turn off the LEDs
-        board.digital_write(blueLEDPin, 0)
-        board.digital_write(redLEDPin, 0)
-        board.digital_write(lowLEDPin, 0)
-        board.digital_write(highLEDPin, 0)
 
 """
 Function to print outputs to console
@@ -216,3 +210,16 @@ def display_character(character, digit):
 # TODO: Response to Ultrasonic
 
 # TODO: Response to LDR
+
+"""
+Function to force switch fan modes (LEDs)
+Params: None
+Return: None
+"""
+def forceControlLEDs():
+    if mode: # switch to heating
+        board.digital_write(blueLEDPin, 0)
+        board.digital_write(redLEDPin, 1)
+    else:
+        board.digital_write(redLEDPin, 0)
+        board.digital_write(blueLEDPin, 1) 
