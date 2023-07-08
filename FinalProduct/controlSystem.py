@@ -8,7 +8,7 @@ Date Created:   04/07/2023
 
 # imports
 from inputs import calibrateSonarSensor, calibrateLDRSensor, checkTemperature, isSwitchMode, checkRoomDoor, checkRoomLighting
-from outputs import displayTemp, forceControlLEDs
+from outputs import controlRoomEnvironment, forceControlLEDs
 import shared
 import time
 import sys
@@ -67,7 +67,7 @@ def startPollingLoop():
         # TODO: display temprature on the 7 seg - 4 digit alpha-numeric without scrolling
 
         # control fans (LEDs) based on the temperature
-        displayTemp(currTemp, trend)
+        controlRoomEnvironment(currTemp, trend)
 
         # check for fan operation (LED) mode change trigger - ideally should be setup as an interrupt
         if (isSwitchMode()): # if push button pressed, switch current mode

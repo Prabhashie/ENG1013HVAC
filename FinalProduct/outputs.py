@@ -27,10 +27,11 @@ Params: currTemp    -> current temperature of the room
         trend       -> if the temperature is increasing or decreasing or stable in the current temperature range
 Return: None
 1. if the current temperature is in the hot region, fan should move heat out
-2. if the current temperature is greater than the previous temperature, fan should move heat out fast => increase fan spead
-3. if the current temperature is smaller than the previous temperature, fan should move heat out slow => decrease fan spead
+    a. if the current temperature is greater than the previous temperature, fan should move heat out fast => increase fan spead
+    b. if the current temperature is smaller than the previous temperature, fan should move heat out slow => decrease fan spead
+2. vice versa when current temperature is in the cold region
 """
-def displayTemp(currTemp, trend):
+def controlRoomEnvironment(currTemp, trend):
     if ambientTempLow <= currTemp <= ambientTempHigh: # if current temperature is within goal temp range
         # fans should be off
         board.digital_write(blueLEDPin, 0)
@@ -50,10 +51,16 @@ Function to control LED array
 Params: currTemp    -> current temperature of the room
         trend       -> if the temperature is increasing or decreasing or stable in the current temperature range
 Return: None
+Usage of the 2nd thermistor
+    we do not want to equate the temperature inside to temperature outside
+    ambient temp inside the room is decided based on the user defined ambient thresholds
+    2nd thermistor is used to check if we need to move air in from outside when the environment inside the room is not ambient
+    ex: if inside the room is hot and outside is hotter, even if we want to move heat out, we shouldn't do this since air outside is hotter
+    ex: if inside is cold and outside is colder, even if we want to move heat in, we shouldn't do this since air outside is colder 
 """
 def controlLEDs(currTemp, trend):
     # CHECK: might need to use a loop to run the fan (light LEDs) for some time
-    if currTemp < ambientTempLow: # if current temperature is lower than goal threshold
+    if (currTemp < ambientTempLow) and (outsideTemperature >= ambientTempLow): # if current temperature is lower than and outside temperature is greater than lower threshold
         # a RED LED turns on to indicate that the fan should move heat into the room
         board.digital_write(blueLEDPin, 0)
         board.digital_write(redLEDPin, 1)
@@ -72,7 +79,7 @@ def controlLEDs(currTemp, trend):
         # a console alert is printed.
         message = f"Current temperature {currTemp} is less than the lower goal threshold {ambientTempLow} C."
         printToConsole(message)
-    else: # if current temperature is higher than goal threshold
+    elif (currTemp > ambientTempHigh) and (outsideTemperature <= ambientTempHigh): # if current temperature is higher than and outside temperature is lower than higher threshold
         # a BLUE LED turns on to indicate that the fan should move heat out of the room
         board.digital_write(redLEDPin, 0)
         board.digital_write(blueLEDPin, 1) 
@@ -90,6 +97,10 @@ def controlLEDs(currTemp, trend):
         
         # a console alert is printed.
         message = f"Current temperature {currTemp} is higher than the upper goal threshold {ambientTempHigh} C."
+        printToConsole(message)
+    else:
+        # a console alert is printed.
+        message = f"Current temperature is not within the ambient range but outside the room has extreme conditions!"
         printToConsole(message)
 
 """

@@ -34,8 +34,11 @@ Return: tempReading -> average temperature value over 1s
 def checkTemperature(selector):
     if selector: 
         shared.setAnalogInputPinMode([thermistorPinIn]) # callback function not set as temperature values are averaged over time
+        thermistorLocation = "inside"
     else:
         shared.setAnalogInputPinMode([thermistorPinOut])
+        thermistorLocation = "outside"
+
     startTime = time.time()
     currTime = time.time()
     tempVals = []
@@ -45,8 +48,8 @@ def checkTemperature(selector):
         currTime = time.time()
     
     # filter/ average temperature values by averaging readings in the array
-    tempReading = sum(tempVals)/ len(tempVals) # temperature stored every 1s
-    print(f"Current temperature is {tempReading} C")
+    tempReading = round(sum(tempVals)/ len(tempVals), 2) # temperature stored every 1s
+    print(f"Current temperature {thermistorLocation} the room is {tempReading} C")
     return tempReading, time.time()
 
 """
@@ -103,7 +106,7 @@ def checkRoomDoor():
         currTime = time.time()
     
     # filter/ average distance values by averaging readings in the array
-    distReading = sum(distVals)/ len(distVals) # distance stored every 1s
+    distReading = round(sum(distVals)/ len(distVals), 2) # distance stored every 1s
     print(f"Current distance to the door is {distReading} cm")
     return distReading, time.time()
 
@@ -137,7 +140,7 @@ def checkRoomLighting():
         currTime = time.time()
     
     # filter/ average voltage values by averaging readings in the array
-    voltageReading = sum(voltageVals)/ len(voltageVals) # light level stored every 1s
+    voltageReading = round(sum(voltageVals)/ len(voltageVals), 2) # light level stored every 1s
     print(f"Current light level in the room is {voltageReading} voltage units")
     return voltageReading, time.time()
 
