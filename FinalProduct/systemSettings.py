@@ -107,9 +107,13 @@ def updateParams():
             while (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
                 try:
                     changeVal = float(input("New value for ambient low threshold (Celcius): "))
-                    shared.ambientTempLow = changeVal
-                    print(f"Ambient low threshold successfully updated to {shared.ambientTempLow} C")
-                    return
+                    if ((shared.minLowTemp - shared.temperatureTolerence) <= changeVal <= (shared.minLowTemp + shared.temperatureTolerence)):
+                        shared.ambientTempLow = changeVal
+                        print(f"Ambient low threshold successfully updated to {shared.ambientTempLow} C")
+                        return
+                    else:
+                        print(f"Ambient low threshold should be between {(shared.minLowTemp - shared.temperatureTolerence)} and {(shared.minLowTemp + shared.temperatureTolerence)} C")
+                        continue
                 except ValueError:
                     print("Incorrect value entered! Please enter a float value.")
                     continue
@@ -120,9 +124,13 @@ def updateParams():
             while (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
                 try:
                     changeVal = float(input("New value for ambient low threshold (Celcius): "))
-                    shared.ambientTempHigh = changeVal
-                    print(f"Ambient high threshold successfully updated to {shared.ambientTempHigh} C")
-                    return
+                    if ((shared.maxHighTemp - shared.temperatureTolerence) <= changeVal <= (shared.maxHighTemp + shared.temperatureTolerence)):
+                        shared.ambientTempHigh = changeVal
+                        print(f"Ambient high threshold successfully updated to {shared.ambientTempHigh} C")
+                        return
+                    else:
+                        print(f"Ambient high threshold should be between {(shared.maxHighTemp - shared.temperatureTolerence)} and {(shared.maxHighTemp + shared.temperatureTolerence)} C")
+                        continue
                 except ValueError:
                     print("Incorrect value entered! Please enter a float value.")
                     continue
@@ -133,10 +141,14 @@ def updateParams():
             while (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
                 try:
                     changeVal = float(input("New value for settings access duration (seconds): "))
-                    shared.systemSettingsAccessDuration = changeVal
-                    print(f"System settings access duration successfully updated to {shared.systemSettingsAccessDuration} s")
-                    print("Return to main menu and come back to system settings for new admin timeout to get activated!")
-                    return
+                    if ((shared.desiredTimeoutDuration - shared.accessDurationTolerence) <= changeVal <= (shared.desiredTimeoutDuration + shared.accessDurationTolerence)):
+                        shared.systemSettingsAccessDuration = changeVal
+                        print(f"System settings access duration successfully updated to {shared.systemSettingsAccessDuration} s")
+                        print("Return to main menu and come back to system settings for new admin timeout to get activated!")
+                        return
+                    else:
+                        print(f"System settings access duration should be between {(shared.desiredTimeoutDuration - shared.accessDurationTolerence)} and {(shared.desiredTimeoutDuration + shared.accessDurationTolerence)} C")
+                        continue
                 except ValueError:
                     print("Incorrect value entered! Please enter a float value.")
                     continue
