@@ -7,7 +7,7 @@ Date Created:   04/07/2023
 """
 
 # imports
-from shared import *
+import shared
 
 # global vars
 
@@ -20,7 +20,7 @@ def systemSettings():
     while True:
         try:
             userInput = int(input("Please enter the PIN to view/ update system parameters: "))
-            if userInput == PIN:
+            if userInput == shared.PIN:
                 while True:
                     print("\nPlease select from below options: \n1. View system parameters \n2. Update system parameters")
                     try:
@@ -53,7 +53,7 @@ Return: None
 """   
 def viewParams():
     print("Current system parameters are: \n")
-    print(f"Ambient temperatue range: {ambientTempLow} - {ambientTempHigh} C\n")
+    print(f"Ambient temperatue range: {shared.ambientTempLow} - {shared.ambientTempHigh} C\n")
 
 """
 Function to update system parameters
@@ -62,7 +62,7 @@ Return: None
 """
 def updateParams():
     print("Current system parameters are: \n")
-    print(f"Ambient temperatue range: {ambientTempLow} - {ambientTempHigh} C\n")
+    print(f"Ambient temperatue range: {shared.ambientTempLow} - {shared.ambientTempHigh} C\n")
 
     while True:
         print("Please choose which system parameter to update: \n1. Ambient low threshold \n2. Ambient high threshold")
@@ -78,8 +78,28 @@ def updateParams():
             return
         # update relavent parameters
         if userInput == 1:
-            ambientTempLow = userInput
+            while True:
+                try:
+                    changeVal = float(input("New value for ambient low threshold: "))
+                    shared.ambientTempLow = changeVal
+                    print(f"Ambient low threshold successfully updated to {shared.ambientTempLow} C")
+                    return
+                except ValueError:
+                    print("Incorrect value entered! Please enter a float value.")
+                    continue
+                except KeyboardInterrupt:
+                    print("\nAborting update...\n")
+                    break
         elif userInput == 2:
-            ambientTempHigh = userInput
-        print("System parameters updated successfully!")
-        return
+            while True:
+                try:
+                    changeVal = float(input("New value for ambient high threshold: "))
+                    shared.ambientTempHigh = changeVal
+                    print(f"Ambient high threshold successfully updated to {shared.ambientTempHigh} C")
+                    return
+                except ValueError:
+                    print("Incorrect value entered! Please enter a float value.")
+                    continue
+                except KeyboardInterrupt:
+                    print("\nAborting update...\n")
+                    break

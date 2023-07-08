@@ -12,7 +12,8 @@ import math
 import time
 
 # global vars
-thermistorPin = 0 # analog thermistor pin
+thermistorPinIn = 0 # analog thermistor pin inside
+thermistorPinOut = 1 # # analog thermistor pin outside
 pushButtonPin = 1 # digital push button pin
 triggerPin = 2
 echoPin = 3
@@ -25,18 +26,22 @@ c2 = 2.378405444e-04
 c3 = 2.019202697e-07
 
 """
-Function to obtain average temperature reading over 3 seconds
-Params: None
-Return: tempReading -> Average temperature value over 3s
+Function to obtain average temperature reading over 1 second
+Params: selector    -> selects which thermistor to read. 0 for outside and 1 for inside
+Return: tempReading -> average temperature value over 1s
+        time        -> current time
 """
-def checkTemperature():
-    shared.setAnalogInputPinMode([thermistorPin]) # callback function not set as temperature values are averaged over time
+def checkTemperature(selector):
+    if selector: 
+        shared.setAnalogInputPinMode([thermistorPinIn]) # callback function not set as temperature values are averaged over time
+    else:
+        shared.setAnalogInputPinMode([thermistorPinOut])
     startTime = time.time()
     currTime = time.time()
     tempVals = []
 
     while (currTime - startTime < 1): # record temperatures continuously for 1s
-        calculateTemp(tempVals)
+        calculateTemp(selector, tempVals)
         currTime = time.time()
     
     # filter/ average temperature values by averaging readings in the array
@@ -46,12 +51,16 @@ def checkTemperature():
 
 """
 Function to calulate temperature from thermistor voltage reading
-Params: tempVals    -> array to store temperature values
+Params: selector    -> selects which thermistor to read. 0 for outside and 1 for inside
+        tempVals    -> array to store temperature values
 Return: None
 """
-def calculateTemp(tempVals):
+def calculateTemp(selector, tempVals):
     time.sleep(0.01)
-    thermistorPinReading, _ = shared.board.analog_read(thermistorPin)
+    if selector:
+        thermistorPinReading, _ = shared.board.analog_read(thermistorPinIn)
+    else:
+        thermistorPinReading, _ = shared.board.analog_read(thermistorPinOut)
     vOut = (vIn / 1023) * thermistorPinReading
     r2 = r1 * ((vIn/vOut) - 1)
     logR2 = math.log(r2)
@@ -79,7 +88,8 @@ Function to read ultrasonic sensor - detect if the room door is open (https://ww
                                                                         https://www.youtube.com/watch?v=n_lZCIA25aI&ab_channel=RealPars,
                                                                         https://learn.adafruit.com/calibrating-sensors?view=all)
 Params: None
-Return: True/ False -> if mode should be switched or not
+Return: distReading -> average distance to the door reading over 1s
+        time        -> current time
 """
 def checkRoomDoor():
     # pin mode set during calibration
@@ -88,18 +98,18 @@ def checkRoomDoor():
     currTime = time.time()
     distVals = []
 
-    while (currTime - startTime < 1): # record temperatures continuously for 1s
+    while (currTime - startTime < 1): # record distance continuously for 1s
         calculateDistance(distVals)
         currTime = time.time()
     
-    # filter/ average temperature values by averaging readings in the array
-    distReading = sum(distVals)/ len(distVals) # temperature stored every 1s
+    # filter/ average distance values by averaging readings in the array
+    distReading = sum(distVals)/ len(distVals) # distance stored every 1s
     print(f"Current distance to the door is {distReading} cm")
     return distReading, time.time()
 
 """
 Function to calulate the distance from sonar sensor
-Params: tempVals    -> array to store temperature values
+Params: distVals    -> array to store distance values
 Return: None
 """
 def calculateDistance(distVals):
@@ -109,8 +119,39 @@ def calculateDistance(distVals):
     sonarPinReading, _ = shared.board.sonar_read(triggerPin) 
     distVals.append(sonarPinReading) # distances are in cm
 
-# TODO: read ldr sensor
-    # filter -> 1s
+"""
+Function to read LDR sensor - detect if the room lighting has changed
+Params: None
+Return: voltageReading  -> average voltage reading corrsponding to the room light level over 1s
+        time            -> current time
+"""
+def checkRoomLighting():
+    # pin mode set during calibration
+    # read the sensor
+    startTime = time.time()
+    currTime = time.time()
+    voltageVals = []
+
+    while (currTime - startTime < 1): # record light level continuously for 1s
+        calculateLighting(voltageVals)
+        currTime = time.time()
+    
+    # filter/ average voltage values by averaging readings in the array
+    voltageReading = sum(voltageVals)/ len(voltageVals) # light level stored every 1s
+    print(f"Current light level in the room is {voltageReading} voltage units")
+    return voltageReading, time.time()
+
+"""
+Function to calulate the distance from sonar sensor
+Params: tempVals    -> array to store temperature values
+Return: None
+"""
+def calculateLighting(voltageVals):
+    time.sleep(0.01)
+    ldrPinReading, _ = shared.board.analog_read(ldrPin) 
+    voltageVals.append(ldrPinReading) # voltage values are in voltage units
+
+
 """
 Function to calibrate the sonar sensor
     - place the sensor inside the room
@@ -147,4 +188,4 @@ def calibrateLDRSensor(): # identify the distance to the door when sufficiently 
     for _ in range(10): # record the voltage across the LDR whe there's ambient lighting
         time.sleep(0.01)
         voltageVals.append(shared.board.analog_read(ldrPin))
-    shared.closedDoorDistance = sum(voltageVals)/ len(voltageVals)
+    shared.ambientLightLevel = sum(voltageVals)/ len(voltageVals)

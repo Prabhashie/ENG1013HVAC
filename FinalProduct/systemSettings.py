@@ -94,12 +94,33 @@ def updateParams():
         except ValueError:
             print("Please enter a value between 1 and 2.\n")
         except KeyboardInterrupt:
-            print("\nExiting system settings...\n")
+            print("\nExiting update parameters...\n")
             return
         # update relavent parameters
+        # TODO: check input values against acceptable range
         if userInput == 1:
-            shared.ambientTempLow = userInput
+            while (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
+                try:
+                    changeVal = float(input("New value for ambient low threshold: "))
+                    shared.ambientTempLow = changeVal
+                    print(f"Ambient low threshold successfully updated to {shared.ambientTempLow} C")
+                    return
+                except ValueError:
+                    print("Incorrect value entered! Please enter a float value.")
+                    continue
+                except KeyboardInterrupt:
+                    print("\nAborting update...\n")
+                    break
         elif userInput == 2:
-            shared.ambientTempHigh = userInput
-        print("System parameters updated successfully!")
-        return
+            while (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
+                try:
+                    changeVal = float(input("New value for ambient low threshold: "))
+                    shared.ambientTempHigh = changeVal
+                    print(f"Ambient high threshold successfully updated to {shared.ambientTempHigh} C")
+                    return
+                except ValueError:
+                    print("Incorrect value entered! Please enter a float value.")
+                    continue
+                except KeyboardInterrupt:
+                    print("\nAborting update...\n")
+                    break

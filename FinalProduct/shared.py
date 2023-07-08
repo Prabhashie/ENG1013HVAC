@@ -12,10 +12,11 @@ from pymata4 import pymata4
 # global vars
 PIN = 1234
 board = pymata4.Pymata4() # arduino board instance
-# TODO: ambient temperatured will be measured using the 2nd thermistor
+temperatureTolerence = 0 # ambient temperatured will be measured using the 2nd thermistor
 # ambient temperature to be decided by +/- diff values
 ambientTempHigh = 25
 ambientTempLow = 20
+outsideTemperature = 0 # temperature outside the model room in C
 # TODO: Other user modifiable parameters
 temperatureMap = [] # list of tempratures and their recorded times for the last 20s -> to be used for graphing
 # for 8 segment display -> # a-g,dp
@@ -102,6 +103,9 @@ systemSettingsStartTime = 0 # start time for system settings access
 systemSettingsAccessDuration = 120 # admin access timeout duration
 mode = 1 # 1 if heating 0 if cooling
 closedDoorDistance = 0 # distance to the door from sonar sensor when closed in cm
+doorTolerence = 2 # tolerence level for closed door measurement in cm
+ambientLightLevel = 0 # ambient light level in the room in voltage units
+lightTolerence = 50 # tolerence level for ambient lighting in voltage units
 
 """
 Function to set pin mode of digital output pins

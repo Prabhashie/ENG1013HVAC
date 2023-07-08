@@ -56,3 +56,5 @@ def graphTimeVsTemp():
     pyplot.title("Temperature variation inside the room within the last 20s")
     pyplot.show()
     pyplot.savefig(f'results/TimeVsTemp_{datetime.now().strftime("%Y%m%d%H%M%S")}')
+
+# TODO: add remaining graphing choices

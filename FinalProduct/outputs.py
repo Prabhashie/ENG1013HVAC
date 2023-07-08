@@ -202,10 +202,10 @@ def display_character(character, digit):
 # TODO: Thermometer 
 
 # TODO: Flashing LED
-    # one for both rapindly increasing and decreasing
+    # one for both rapidly increasing and decreasing
     
 # TODO: Buzzer
-    # one tone for each rapindly increasing and decreasing
+    # one tone for each rapidly increasing and decreasing
 
 # TODO: Response to Ultrasonic
 

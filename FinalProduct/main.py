@@ -29,6 +29,8 @@ def main():
     # get user input
     print("Welcome to ENG1013 Smart Fan System!\n")
 
+    # TODO: show scrolling welcome message message - one message is enough to demonstrate scrolling messages
+
     # loop if an incorrect input is entered
     while True:
         print("Please select from the below options: \n1. Control System \n2. System Settings \n3. Graphing\n") 
