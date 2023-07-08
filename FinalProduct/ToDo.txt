@@ -21,3 +21,27 @@
 # 4. LED flash for rising and falling running on dedicated 556 timer - connect vcc to arduino output? connect to the trigger pin
 # 5. single buzzer for rising and falling running on dedicated 556 timer (2 555 timers) - connect vcc to arduino output? connect to the trigger pin
 # 6. ultrasonic and LDR output -> using two buzzers/ two LEDs or buzzer and LED (should be able to run concurrently)
+# 7. additional graphs
+
+# shift reg usage
+# 7 seg - 1 (chain for digit pins as well?)
+# fan LEDs, flashing LED, LDR response, ultrasonic response - 1
+# LED sequence - 1
+
+# arduino pin usage
+# 2 thermistors -       2 analog
+# 1 LDR -               1 analog
+
+# ultrasonic -          2 digital
+
+# 7 seg -               7 digital
+
+# fan LEDs -            4 digital
+# flashing LED -        1 digital
+# LDR response -        1 digital
+# ultrasonic response - 1 digital
+
+# LED sequence -        8 digital
+
+# buzzer -              2 digital
+

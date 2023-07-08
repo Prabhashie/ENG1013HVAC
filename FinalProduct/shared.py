@@ -10,18 +10,10 @@ Date Created:   04/07/2023
 from pymata4 import pymata4
 
 # global vars
+# constants
 PIN = 1234
-board = pymata4.Pymata4() # arduino board instance
-ambientTempHigh = 25
-ambientTempLow = 20
-minLowTemp = 20
-maxHighTemp = 25
-temperatureTolerence = 1 # value by which the temperature thresholds can vary in C
-outsideTemperature = 0 # temperature outside the model room in C
-# TODO: Other user modifiable parameters
-temperatureMap = [] # list of tempratures and their recorded times for the last 20s -> to be used for graphing
 # for 8 segment display -> # a-g not including dp
-charMap = {
+CHAR_MAP = {
     '0': [1, 1, 1, 1, 1, 1, 0],
     '1': [0, 1, 1, 0, 0, 0, 0],
     '2': [1, 1, 0, 1, 1, 0, 1],
@@ -60,17 +52,31 @@ charMap = {
     'Z': [1, 1, 0, 1, 0, 0, 1],
     '_': [0, 0, 0, 0, 0, 0, 0]
 }
-PIN_MASK = 0b10000000
+# reference values
+minLowTemp = 20
+maxHighTemp = 25
+desiredTimeoutDuration = 120
+# user modifiable params
+ambientTempHigh = 25
+ambientTempLow = 20
+systemSettingsAccessDuration = 120 # admin access timeout duration
+# tolerences
+temperatureTolerence = 1 # value by which the temperature thresholds can vary in C
+accessDurationTolerence = 10 # # value by which the system settings access duration can vary in s
+doorTolerence = 2 # tolerence level for closed door measurement in cm
+lightTolerence = 50 # tolerence level for ambient lighting in voltage units
+# other global vars
+board = pymata4.Pymata4() # arduino board instance
 invalidPINTimeoutStart = 0 # start time for system lock due to invalid PIN
 systemSettingsStartTime = 0 # start time for system settings access
-systemSettingsAccessDuration = 120 # admin access timeout duration
-desiredTimeoutDuration = 120
-accessDurationTolerence = 10 # # value by which the system settings access duration can vary in s
-mode = 1 # 1 if heating 0 if cooling
+mode = 0 # 1 if heating -1 if cooling 0 if neither
+outsideTemperature = 0 # temperature outside the model room in C
 closedDoorDistance = 0 # distance to the door from sonar sensor when closed in cm
-doorTolerence = 2 # tolerence level for closed door measurement in cm
 ambientLightLevel = 0 # ambient light level in the room in voltage units
-lightTolerence = 50 # tolerence level for ambient lighting in voltage units
+# data stores
+temperatureMap = [] # list of tempratures and their recorded times for the last 20s -> to be used for graphing
+lightIntensityMap = [] # list of light intensity value and their recorded times for the last 20s -> to be used for graphing
+systemModeMap = []  # list of system mode values and their recorded times for the last 20s -> to be used for graphing
 
 """
 Function to set pin mode of digital output pins

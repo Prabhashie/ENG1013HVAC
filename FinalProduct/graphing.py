@@ -22,7 +22,7 @@ Return: None
 def graphing():
     # loop if an incorrect input is entered
     while True:
-        print("Please select from the below options: \n1. Time Vs. Temp \n2. TODO \n3. TODO \n") 
+        print("Please select from the below options: \n1. Temperature Vs. Time \n2. Light Intensity Vs. Time \n3. Fan Mode Vs. Time \n") 
         try:
             userInput = int(input("Your Choice: "))
             if (userInput not in [1,2,3]):
@@ -36,14 +36,18 @@ def graphing():
 
         # call relavent function
         if userInput == 1:
-            graphTimeVsTemp()
+            graph_temp_vs_time()
         elif userInput == 2:
-            pass
+            graph_light_intensity_vs_time()
         elif userInput == 3:
-            pass
+            graph_fan_mode_vs_time()
     
-
-def graphTimeVsTemp():
+"""
+Function to plot temperature vs time graph
+Params: None
+Return: None
+"""
+def graph_temp_vs_time():
     timeData = []
     temperatureData = []
     for item in temperatureMap:
@@ -55,7 +59,48 @@ def graphTimeVsTemp():
     pyplot.ylabel('Temperature (C)')
     pyplot.xlim([0, 20])
     pyplot.title("Temperature variation inside the room within the last 20s")
-    pyplot.savefig(f'results/TimeVsTemp_{datetime.now().strftime("%Y%m%d%H%M%S")}.png') # https://mljar.com/blog/matplotlib-save-plot/
+    pyplot.savefig(f'results/TempVsTime_{datetime.now().strftime("%Y%m%d%H%M%S")}.png') # https://mljar.com/blog/matplotlib-save-plot/
     pyplot.show()
 
-# TODO: add remaining graphing choices
+"""
+Function to plot light intensity vs time graph
+Params: None
+Return: None
+"""
+def graph_light_intensity_vs_time():
+    timeData = []
+    lightIntensityData = []
+    for item in lightIntensityMap:
+        timeData.append(item[0] - lightIntensityMap[0][0])
+        lightIntensityData.append(item[1])
+    print("Graphing variation of light intensity over past 20s...")
+    pyplot.plot(timeData, lightIntensityData, "*")
+    pyplot.xlabel('Time (s)')
+    pyplot.ylabel('Light intensity (V)')
+    pyplot.xlim([0, 20])
+    pyplot.title("Light intensity variation inside the room within the last 20s")
+    pyplot.savefig(f'results/LightVsTime_{datetime.now().strftime("%Y%m%d%H%M%S")}.png')
+    pyplot.show()
+
+"""
+Function to plot fan mode vs time graph
+Params: None
+Return: None
+"""
+def graph_fan_mode_vs_time():
+    timeData = []
+    modeData = []
+    for item in systemModeMap:
+        timeData.append(item[0] - systemModeMap[0][0])
+        modeData.append(item[1])
+    if len(systemModeMap) == 0: # if mode didn't change over the last 20s
+        timeData = [i for i in range(20)]
+        modeData = [0] * 20
+    print("Graphing variation of system mode over past 20s...")
+    pyplot.plot(timeData, modeData, "*")
+    pyplot.xlabel('Time (s)')
+    pyplot.ylabel('System mode')
+    pyplot.xlim([0, 20])
+    pyplot.title("System mode variation inside the room within the last 20s")
+    pyplot.savefig(f'results/ModeVsTime_{datetime.now().strftime("%Y%m%d%H%M%S")}.png')
+    pyplot.show()

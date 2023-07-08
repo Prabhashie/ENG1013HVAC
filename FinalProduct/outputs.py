@@ -7,7 +7,7 @@ Date Created:   04/07/2023
 """
 
 # imports
-from shared import *
+import shared
 import math
 import time
 
@@ -32,18 +32,19 @@ Return: None
 2. vice versa when current temperature is in the cold region
 """
 def control_room_environment(currTemp, trend):
-    if ambientTempLow <= currTemp <= ambientTempHigh: # if current temperature is within goal temp range
+    if shared.ambientTempLow <= currTemp <= shared.ambientTempHigh: # if current temperature is within goal temp range
+        shared.mode = 0 # no fans are on, mode is neither heating nor cooling
         # fans should be off
-        board.digital_write(blueLEDPin, 0)
-        board.digital_write(redLEDPin, 0)
-        board.digital_write(highLEDPin, 0)
-        board.digital_write(lowLEDPin, 0)
+        shared.board.digital_write(blueLEDPin, 0)
+        shared.board.digital_write(redLEDPin, 0)
+        shared.board.digital_write(highLEDPin, 0)
+        shared.board.digital_write(lowLEDPin, 0)
 
-        message = f"Current temperature {currTemp} is within the goal range {ambientTempLow} - {ambientTempHigh} C."
+        message = f"Current temperature {currTemp} is within the goal range {shared.ambientTempLow} - {shared.ambientTempHigh} C."
         print_to_console(message)
     else:
         pinList = [redLEDPin, blueLEDPin, lowLEDPin, highLEDPin]
-        set_digital_output_pin_mode(pinList)
+        shared.set_digital_output_pin_mode(pinList)
         control_leds(currTemp, trend)
         
 """
@@ -60,45 +61,52 @@ Usage of the 2nd thermistor
 """
 def control_leds(currTemp, trend):
     # CHECK: might need to use a loop to run the fan (light LEDs) for some time
-    if (currTemp < ambientTempLow) and (outsideTemperature >= ambientTempLow): # if current temperature is lower than and outside temperature is greater than lower threshold
+    if (currTemp < shared.ambientTempLow) and (shared.outsideTemperature >= shared.ambientTempLow): # if current temperature is lower than and outside temperature is greater than lower threshold
+        shared.mode = 1 # heating mode on
+        shared.systemModeMap.append((time.time(), shared.mode))
+
         # a RED LED turns on to indicate that the fan should move heat into the room
-        board.digital_write(blueLEDPin, 0)
-        board.digital_write(redLEDPin, 1)
+        shared.board.digital_write(blueLEDPin, 0)
+        shared.board.digital_write(redLEDPin, 1)
         # time.sleep(2) # pause the execution of your Arduino program for 2s
         
         # 2 LEDs should be used, to indicate a low and high ventilation speed
         if (trend <= 0):
-            board.digital_write(highLEDPin, 0)
-            board.digital_write(lowLEDPin, 1)
+            shared.board.digital_write(highLEDPin, 0)
+            shared.board.digital_write(lowLEDPin, 1)
             # time.sleep(2)
         else:
-            board.digital_write(lowLEDPin, 0)
-            board.digital_write(highLEDPin, 1)
+            shared.board.digital_write(lowLEDPin, 0)
+            shared.board.digital_write(highLEDPin, 1)
             # time.sleep(2)
         
         # a console alert is printed.
-        message = f"Current temperature {currTemp} is less than the lower goal threshold {ambientTempLow} C."
+        message = f"Current temperature {currTemp} is less than the lower goal threshold {shared.ambientTempLow} C."
         print_to_console(message)
-    elif (currTemp > ambientTempHigh) and (outsideTemperature <= ambientTempHigh): # if current temperature is higher than and outside temperature is lower than higher threshold
+    elif (currTemp > shared.ambientTempHigh) and (shared.outsideTemperature <= shared.ambientTempHigh): # if current temperature is higher than and outside temperature is lower than higher threshold
+        shared.mode = -1 # cooling mode on
+        shared.systemModeMap.append((time.time(), shared.mode))
+
         # a BLUE LED turns on to indicate that the fan should move heat out of the room
-        board.digital_write(redLEDPin, 0)
-        board.digital_write(blueLEDPin, 1) 
+        shared.board.digital_write(redLEDPin, 0)
+        shared.board.digital_write(blueLEDPin, 1) 
         # time.sleep(2)
         
         # 2 LEDs should be used, to indicate a low and high ventilation speed
         if (trend <= 0):
-            board.digital_write(highLEDPin, 0)
-            board.digital_write(lowLEDPin, 1)
+            shared.board.digital_write(highLEDPin, 0)
+            shared.board.digital_write(lowLEDPin, 1)
             # time.sleep(2)
         else:
-            board.digital_write(lowLEDPin, 0)
-            board.digital_write(highLEDPin, 1)
+            shared.board.digital_write(lowLEDPin, 0)
+            shared.board.digital_write(highLEDPin, 1)
             # time.sleep(2)
         
         # a console alert is printed.
-        message = f"Current temperature {currTemp} is higher than the upper goal threshold {ambientTempHigh} C."
+        message = f"Current temperature {currTemp} is higher than the upper goal threshold {shared.ambientTempHigh} C."
         print_to_console(message)
     else:
+        shared.mode = 0 # no fans are on, mode is neither heating nor cooling
         # a console alert is printed.
         message = f"Current temperature is not within the ambient range but outside the room has extreme conditions!"
         print_to_console(message)
@@ -120,8 +128,8 @@ Return: None
 scrollDuration > displayDuration
 """
 def display_scrolling_string(string, scrollDuration, displayDuration):
-    set_digital_output_pin_mode([pinSER, pinSRCLK, pinRCLK])
-    set_digital_output_pin_mode(digitPins)
+    shared.set_digital_output_pin_mode([pinSER, pinSRCLK, pinRCLK])
+    shared.set_digital_output_pin_mode(digitPins)
 
     scrollingStartTime = time.time()
     string = string.upper()
@@ -130,15 +138,15 @@ def display_scrolling_string(string, scrollDuration, displayDuration):
         for i in range(stringLength - 3):
             substring = string[i : i + 4]
             display_four_character_string(substring, displayDuration)
-    for _ in range(8): # turn off all digits
-        board.digital_write(pinSER, 0)
-        board.digital_write(pinSRCLK, 1)
-        board.digital_write(pinSRCLK, 0)
+    for _ in range(8): # turn off all digits - can use CLR pin in the shift reg at the cost of an additional arduino pin
+        shared.board.digital_write(pinSER, 0)
+        shared.board.digital_write(pinSRCLK, 1)
+        shared.board.digital_write(pinSRCLK, 0)
         
-    board.digital_write(pinRCLK, 1)
-    board.digital_write(pinRCLK, 0)
+    shared.board.digital_write(pinRCLK, 1)
+    shared.board.digital_write(pinRCLK, 0)
     for i in digitPins: # turn off all digit pins (set to one as digit pins are active low)
-        board.digital_write(i,1)
+        shared.board.digital_write(i,1)
 
 """
 Function to display a 4-digit alphanumeric message
@@ -147,19 +155,20 @@ Params: string    -> string to print
 Return: None
 """
 def display_four_character_string(string, duration):
+    string = string.upper() # turn the string to all upper case
     fourCharacterStartTime = time.time()
     while time.time() - fourCharacterStartTime < duration:
         for i in range(4):
             display_character(string[i], i+1)
     for _ in range(8): # turn off all digits
-        board.digital_write(pinSER, 0)
-        board.digital_write(pinSRCLK, 1)
-        board.digital_write(pinSRCLK, 0)
+        shared.board.digital_write(pinSER, 0)
+        shared.board.digital_write(pinSRCLK, 1)
+        shared.board.digital_write(pinSRCLK, 0)
 
-    board.digital_write(pinRCLK, 1)
-    board.digital_write(pinRCLK, 0)
+    shared.board.digital_write(pinRCLK, 1)
+    shared.board.digital_write(pinRCLK, 0)
     for i in digitPins: # turn off all digit pins (set to one as digit pins are active low)
-        board.digital_write(i,1)
+        shared.board.digital_write(i,1)
 
 """
 Function to display a character in the 7 seg
@@ -169,28 +178,28 @@ Return: None
 """
 def display_character(character, digit):
 
-    segments = charMap[character]
+    segments = shared.CHAR_MAP[character]
     for i in digitPins:
-        board.digital_write(i, 1) # turn off all digits
+        shared.board.digital_write(i, 1) # turn off all digits
     for _ in range(8): # clear all the segments and turn off
-        board.digital_write(pinSER, 0)
-        board.digital_write(pinSRCLK, 1)
-        board.digital_write(pinSRCLK, 0)
+        shared.board.digital_write(pinSER, 0)
+        shared.board.digital_write(pinSRCLK, 1)
+        shared.board.digital_write(pinSRCLK, 0)
 
-    board.digital_write(pinRCLK, 1)
-    board.digital_write(pinRCLK, 0)
+    shared.board.digital_write(pinRCLK, 1)
+    shared.board.digital_write(pinRCLK, 0)
     
     # pins should be written g - a
     # connect the shift reg to the 7 seg accordingly
     for i in range(6, -1, -1): # write value to the 7 seg
-        board.digital_write(pinSER, segments[i])
-        board.digital_write(pinSRCLK, 1)
-        board.digital_write(pinSRCLK, 0)
+        shared.board.digital_write(pinSER, segments[i])
+        shared.board.digital_write(pinSRCLK, 1)
+        shared.board.digital_write(pinSRCLK, 0)
    
-    board.digital_write(pinRCLK, 1)
-    board.digital_write(pinRCLK, 0)
+    shared.board.digital_write(pinRCLK, 1)
+    shared.board.digital_write(pinRCLK, 0)
     
-    board.digital_write(digitPins[digit - 1], 0) # turn on the digit pin
+    shared.board.digital_write(digitPins[digit - 1], 0) # turn on the digit pin
     time.sleep(0.025)
 
 # TODO: Thermometer 
@@ -211,9 +220,9 @@ Params: None
 Return: None
 """
 def force_control_leds():
-    if mode: # switch to heating
-        board.digital_write(blueLEDPin, 0)
-        board.digital_write(redLEDPin, 1)
-    else:
-        board.digital_write(redLEDPin, 0)
-        board.digital_write(blueLEDPin, 1) 
+    if shared.mode == 1: # switch to heating
+        shared.board.digital_write(blueLEDPin, 0)
+        shared.board.digital_write(redLEDPin, 1)
+    elif shared.mode == -1:
+        shared.board.digital_write(redLEDPin, 0)
+        shared.board.digital_write(blueLEDPin, 1) 

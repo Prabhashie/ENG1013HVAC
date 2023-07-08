@@ -8,7 +8,7 @@ Date Created:   04/07/2023
 
 # imports
 from inputs import calibrate_sonar_sensor, calibrate_ldr_sensor, check_temperature, is_switch_mode, check_room_door, check_room_lighting
-from outputs import control_room_environment, force_control_leds
+from outputs import control_room_environment, force_control_leds, display_four_character_string
 import shared
 import time
 import sys
@@ -63,28 +63,44 @@ def start_polling_loop():
         trend = 1 if currTemp - prevTemp > 0 else -1 if currTemp - prevTemp < 0 else 0 # check if the temperature is increasing/ decreasing or constant
         
         # TODO: display temprature on the thermometer
-
-        # TODO: display temprature on the 7 seg - 4 digit alpha-numeric without scrolling
+        
+        # display temprature on the 7 seg - 4 digit alpha-numeric without scrolling
+        string = str(int(currTemp))
+        duration = 1 # display for 1s
+        display_four_character_string(string, duration)
 
         # control fans (LEDs) based on the temperature
         control_room_environment(currTemp, trend)
 
         # check for fan operation (LED) mode change trigger - ideally should be setup as an interrupt
-        if (is_switch_mode()): # if push button pressed, switch current mode
-            shared.mode = not (shared.mode)
+        if (is_switch_mode() and not shared.mode): # if push button pressed, switch current mode
+            shared.mode = shared.mode * -1
+            shared.systemModeMap.append((time.time(), shared.mode))
             force_control_leds()
 
         # check if the room door is open - ideally should be setup as an interrupt
-        currDist, _ = check_room_door()
+        currDist, currTime = check_room_door()
         if (currDist > (shared.closedDoorDistance + shared.doorTolerence)): # door is open
             pass
 
         # check if the lighting in the room changed - ideally should be setup as an interrupt
-        currLightLevel, _ = check_room_lighting()
+        currLightLevel, currTime = check_room_lighting()
+        
+        # adjust stored light intensity data
+        while (len(shared.lightIntensityMap) != 0) and ((currTime - shared.lightIntensityMap[0][0]) > 20): # only keep the temperature data from last 20s
+            shared.lightIntensityMap.pop(0)
+        # convert light intensity to voltage
+        currLightLevelVolts = (currLightLevel / 1023) * 5 # input voltage is taken as 5V
+        shared.lightIntensityMap.append((currTime, currLightLevelVolts))
+
         if (currLightLevel > (shared.ambientLightLevel + shared.lightTolerence)): # lighting increased inside the room
             pass
         elif (currLightLevel < (shared.ambientLightLevel - shared.lightTolerence)): # lighting decreased inside the room
             pass
-
+        
+        # adjust stored mode data
+        while (len(shared.systemModeMap) != 0) and ((shared.systemModeMap[-1][0] - shared.systemModeMap[0][0]) > 20): # only keep the temperature data from last 20s
+            shared.systemModeMap.pop(0)
+        
         endLoop = time.time() # record loop end time
         print(f"\nTime taken by the polling loop: {endLoop - startLoop}")

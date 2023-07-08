@@ -185,7 +185,7 @@ Params: None
 Return: None
 """
 def calibrate_ldr_sensor(): # identify the distance to the door when sufficiently closed
-    shared.set_analog_iInput_pin_mode([ldrPin])
+    shared.set_analog_input_pin_mode([ldrPin])
     voltageVals = []
     for _ in range(10): # record the voltage across the LDR whe there's ambient lighting
         time.sleep(0.01)
