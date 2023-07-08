@@ -17,7 +17,7 @@ Function to run the system settings operations such as view and update system pa
 Params: None
 Return: None
 """
-def systemSettings():
+def system_settings():
     pinEntries = 1
     shared.systemSettingsStartTime = time.time()    # importing * and using global doesn't work 
                                                     # global only makes the variable global for the context of the module (file)
@@ -40,9 +40,9 @@ def systemSettings():
                         return
                     # call relavent function
                     if userInput == 1:
-                        viewParams()
+                        view_params()
                     elif userInput == 2:
-                        updateParams()
+                        update_params()
                 print("\nAdmin access timeout!")
                 return # returns to main menu if timed out
             else:
@@ -70,7 +70,7 @@ Function to view system parameters
 Params: None
 Return: None
 """   
-def viewParams():
+def view_params():
     if (time.time() - shared.systemSettingsStartTime) <= shared.systemSettingsAccessDuration: # timeout if admin access duration exceeded
         print("Current system parameters are: \n")
         print(f"Ambient temperatue range: {shared.ambientTempLow} - {shared.ambientTempHigh} C\n")
@@ -85,7 +85,7 @@ Function to update system parameters
 Params: None
 Return: None
 """
-def updateParams():
+def update_params():
     print("Current system parameters are: \n")
     print(f"Ambient temperatue range: {shared.ambientTempLow} - {shared.ambientTempHigh} C\n")
 

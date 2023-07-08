@@ -77,7 +77,7 @@ Function to set pin mode of digital output pins
 Params: pinList     -> list of pins to be set as digital outputs
 Return: None
 """
-def setDigitalOutputPinMode(pinList):
+def set_digital_output_pin_mode(pinList):
     for pin in pinList:
         board.set_pin_mode_digital_output(pin)
 
@@ -86,7 +86,7 @@ Function to set pin mode of digital input pins
 Params: pinList     -> list of pins to be set as digital inputs
 Return: None
 """
-def setDigitalInputPinMode(pinList):
+def set_digital_input_pin_mode(pinList):
     for pin in pinList:
         board.set_pin_mode_digital_input(pin) 
 
@@ -95,7 +95,7 @@ Function to set pin mode of analog input pins
 Params: pinList     -> list of pins to be set as analog inputs
 Return: None
 """
-def setAnalogInputPinMode(pinList):
+def set_analog_input_pin_mode(pinList):
     for pin in pinList:
         board.set_pin_mode_analog_input(pin)
 
@@ -104,5 +104,5 @@ Function to set pin mode of sonar pins
 Params: pinList     -> in the order of trigger pin, echo pin
 Return: None
 """
-def setSonarInputPinMode(pinList):
+def set_sonar_input_pin_mode(pinList):
     board.set_pin_mode_sonar(pinList[0], pinList[1]) 

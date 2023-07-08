@@ -10,9 +10,10 @@ Date Created:   04/07/2023
 """
 
 # imports
-from controlSystem import controlSystem
-from systemSettings import systemSettings
+from controlSystem import control_system
+from systemSettings import system_settings
 from graphing import graphing
+from outputs import display_scrolling_string
 import shared
 import time
 import sys
@@ -29,7 +30,11 @@ def main():
     # get user input
     print("Welcome to ENG1013 Smart Fan System!\n")
 
-    # TODO: show scrolling welcome message message - one message is enough to demonstrate scrolling messages
+    # show scrolling welcome message message - one message is enough to demonstrate scrolling messages
+    welcomeMessage = "Welcome to Smart HVAC"
+    scrollDuration = 5
+    displayDuration = 2
+    display_scrolling_string(welcomeMessage, scrollDuration, displayDuration)
 
     # loop if an incorrect input is entered
     while True:
@@ -52,11 +57,11 @@ def main():
         # call relavent function
         if userInput == 1:
             print("\nTaking you to control system...")
-            controlSystem()
+            control_system()
         elif userInput == 2:
             if (time.time() > shared.invalidPINTimeoutStart + 120):
                 print("\nTaking you to system settings...")
-                systemSettings()
+                system_settings()
             else:
                 print(f"\nSystem settings currently locked. Please try in {math.ceil(120-(time.time()-shared.invalidPINTimeoutStart))} seconds")
         elif userInput == 3:

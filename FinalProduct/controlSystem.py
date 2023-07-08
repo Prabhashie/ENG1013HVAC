@@ -7,8 +7,8 @@ Date Created:   04/07/2023
 """
 
 # imports
-from inputs import calibrateSonarSensor, calibrateLDRSensor, checkTemperature, isSwitchMode, checkRoomDoor, checkRoomLighting
-from outputs import controlRoomEnvironment, forceControlLEDs
+from inputs import calibrate_sonar_sensor, calibrate_ldr_sensor, check_temperature, is_switch_mode, check_room_door, check_room_lighting
+from outputs import control_room_environment, force_control_leds
 import shared
 import time
 import sys
@@ -20,18 +20,18 @@ Function to initiate the control system
 Params: None
 Return: None
 """
-def controlSystem():
+def control_system():
     try:
         # calibrate sensors before starting the polling loop - only needed to be done at the beginning of the control system
         print("Calibrating sensors. Please make sure the door is closed and lighting is normal...\n")
         # calibrate sonar sensor
-        calibrateSonarSensor()
+        calibrate_sonar_sensor()
         # calibrate LDR sensor
-        calibrateLDRSensor()
+        calibrate_ldr_sensor()
 
         # start polling loop
         print("Starting polling loop...\n")
-        startPollingLoop()
+        start_polling_loop()
     except KeyboardInterrupt:
         print("\nExiting control system...")
         # TODO: turn off all control system outputs before shutting down the board
@@ -43,15 +43,15 @@ Function to run the polling loop for fan operation
 Params: None
 Return: None
 """
-def startPollingLoop():
+def start_polling_loop():
     while True:
         startLoop = time.time() # record loop start time
         
         # read temperature outside the room and record the ambient temprature
-        shared.outsideTemperature, _ = checkTemperature(0) 
+        shared.outsideTemperature, _ = check_temperature(0) 
 
         # read temperature inside the room
-        currTemp, currTime = checkTemperature(1)
+        currTemp, currTime = check_temperature(1)
         prevTemp = currTemp if len(shared.temperatureMap) == 0 else shared.temperatureMap[-1][1] # get last recorded temperature. if array is empty, use current value
 
         # adjust stored temperature data
@@ -67,20 +67,20 @@ def startPollingLoop():
         # TODO: display temprature on the 7 seg - 4 digit alpha-numeric without scrolling
 
         # control fans (LEDs) based on the temperature
-        controlRoomEnvironment(currTemp, trend)
+        control_room_environment(currTemp, trend)
 
         # check for fan operation (LED) mode change trigger - ideally should be setup as an interrupt
-        if (isSwitchMode()): # if push button pressed, switch current mode
+        if (is_switch_mode()): # if push button pressed, switch current mode
             shared.mode = not (shared.mode)
-            forceControlLEDs()
+            force_control_leds()
 
         # check if the room door is open - ideally should be setup as an interrupt
-        currDist, _ = checkRoomDoor()
+        currDist, _ = check_room_door()
         if (currDist > (shared.closedDoorDistance + shared.doorTolerence)): # door is open
             pass
 
         # check if the lighting in the room changed - ideally should be setup as an interrupt
-        currLightLevel, _ = checkRoomLighting()
+        currLightLevel, _ = check_room_lighting()
         if (currLightLevel > (shared.ambientLightLevel + shared.lightTolerence)): # lighting increased inside the room
             pass
         elif (currLightLevel < (shared.ambientLightLevel - shared.lightTolerence)): # lighting decreased inside the room

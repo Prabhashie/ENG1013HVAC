@@ -31,12 +31,12 @@ Params: selector    -> selects which thermistor to read. 0 for outside and 1 for
 Return: tempReading -> average temperature value over 1s
         time        -> current time
 """
-def checkTemperature(selector):
+def check_temperature(selector):
     if selector: 
-        shared.setAnalogInputPinMode([thermistorPinIn]) # callback function not set as temperature values are averaged over time
+        shared.set_analog_input_pin_mode([thermistorPinIn]) # callback function not set as temperature values are averaged over time
         thermistorLocation = "inside"
     else:
-        shared.setAnalogInputPinMode([thermistorPinOut])
+        shared.set_analog_input_pin_mode([thermistorPinOut])
         thermistorLocation = "outside"
 
     startTime = time.time()
@@ -44,7 +44,7 @@ def checkTemperature(selector):
     tempVals = []
 
     while (currTime - startTime < 1): # record temperatures continuously for 1s
-        calculateTemp(selector, tempVals)
+        calculate_temp(selector, tempVals)
         currTime = time.time()
     
     # filter/ average temperature values by averaging readings in the array
@@ -58,7 +58,7 @@ Params: selector    -> selects which thermistor to read. 0 for outside and 1 for
         tempVals    -> array to store temperature values
 Return: None
 """
-def calculateTemp(selector, tempVals):
+def calculate_temp(selector, tempVals):
     time.sleep(0.01) # check this time value
     if selector:
         thermistorPinReading, _ = shared.board.analog_read(thermistorPinIn)
@@ -76,7 +76,7 @@ Function to read push button input - when pressed switches from cooling to heati
 Params: None
 Return: True/ False -> if mode should be switched or not
 """
-def isSwitchMode(): # ideally the push button press should generate an interrupt, but we do not use async calls in the scope of the unit
+def is_switch_mode(): # ideally the push button press should generate an interrupt, but we do not use async calls in the scope of the unit
     print("Reading push button input...")
     readings = []
     for _ in range(10):
@@ -94,7 +94,7 @@ Params: None
 Return: distReading -> average distance to the door reading over 1s
         time        -> current time
 """
-def checkRoomDoor():
+def check_room_door():
     # pin mode set during calibration
     # read the sensor
     startTime = time.time()
@@ -102,7 +102,7 @@ def checkRoomDoor():
     distVals = []
 
     while (currTime - startTime < 1): # record distance continuously for 1s
-        calculateDistance(distVals)
+        calculate_distance(distVals)
         currTime = time.time()
     
     # filter/ average distance values by averaging readings in the array
@@ -115,7 +115,7 @@ Function to calulate the distance from sonar sensor
 Params: distVals    -> array to store distance values
 Return: None
 """
-def calculateDistance(distVals):
+def calculate_distance(distVals):
     time.sleep(0.01)
     # if callback used, it will receive data every time the SENSOR VALUE CHANGES (https://mryslab.github.io/pymata4/pin_modes/)
     # if the sensor is manually read/ polled as below, will get readings everytime polled, despite the sensor value changed or not
@@ -128,7 +128,7 @@ Params: None
 Return: voltageReading  -> average voltage reading corrsponding to the room light level over 1s
         time            -> current time
 """
-def checkRoomLighting():
+def check_room_lighting():
     # pin mode set during calibration
     # read the sensor
     startTime = time.time()
@@ -136,7 +136,7 @@ def checkRoomLighting():
     voltageVals = []
 
     while (currTime - startTime < 1): # record light level continuously for 1s
-        calculateLighting(voltageVals)
+        calculate_lighting(voltageVals)
         currTime = time.time()
     
     # filter/ average voltage values by averaging readings in the array
@@ -149,11 +149,10 @@ Function to calulate the distance from sonar sensor
 Params: tempVals    -> array to store temperature values
 Return: None
 """
-def calculateLighting(voltageVals):
+def calculate_lighting(voltageVals):
     time.sleep(0.01)
     ldrPinReading, _ = shared.board.analog_read(ldrPin) 
     voltageVals.append(ldrPinReading) # voltage values are in voltage units
-
 
 """
 Function to calibrate the sonar sensor
@@ -164,8 +163,8 @@ Function to calibrate the sonar sensor
 Params: None
 Return: None
 """  
-def calibrateSonarSensor(): # identify the distance to the door when sufficiently closed
-    shared.setSonarInputPinMode([triggerPin, echoPin])
+def calibrate_sonar_sensor(): # identify the distance to the door when sufficiently closed
+    shared.set_sonar_input_pin_mode([triggerPin, echoPin])
     distVals = []
     for _ in range(10):
         time.sleep(0.01)
@@ -185,8 +184,8 @@ Function to calibrate the LDR sensor
 Params: None
 Return: None
 """
-def calibrateLDRSensor(): # identify the distance to the door when sufficiently closed
-    shared.setAnalogInputPinMode([ldrPin])
+def calibrate_ldr_sensor(): # identify the distance to the door when sufficiently closed
+    shared.set_analog_iInput_pin_mode([ldrPin])
     voltageVals = []
     for _ in range(10): # record the voltage across the LDR whe there's ambient lighting
         time.sleep(0.01)

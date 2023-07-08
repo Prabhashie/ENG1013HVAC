@@ -31,7 +31,7 @@ Return: None
     b. if the current temperature is smaller than the previous temperature, fan should move heat out slow => decrease fan spead
 2. vice versa when current temperature is in the cold region
 """
-def controlRoomEnvironment(currTemp, trend):
+def control_room_environment(currTemp, trend):
     if ambientTempLow <= currTemp <= ambientTempHigh: # if current temperature is within goal temp range
         # fans should be off
         board.digital_write(blueLEDPin, 0)
@@ -40,11 +40,11 @@ def controlRoomEnvironment(currTemp, trend):
         board.digital_write(lowLEDPin, 0)
 
         message = f"Current temperature {currTemp} is within the goal range {ambientTempLow} - {ambientTempHigh} C."
-        printToConsole(message)
+        print_to_console(message)
     else:
         pinList = [redLEDPin, blueLEDPin, lowLEDPin, highLEDPin]
-        setDigitalOutputPinMode(pinList)
-        controlLEDs(currTemp, trend)
+        set_digital_output_pin_mode(pinList)
+        control_leds(currTemp, trend)
         
 """
 Function to control LED array
@@ -58,7 +58,7 @@ Usage of the 2nd thermistor
     ex: if inside the room is hot and outside is hotter, even if we want to move heat out, we shouldn't do this since air outside is hotter
     ex: if inside is cold and outside is colder, even if we want to move heat in, we shouldn't do this since air outside is colder 
 """
-def controlLEDs(currTemp, trend):
+def control_leds(currTemp, trend):
     # CHECK: might need to use a loop to run the fan (light LEDs) for some time
     if (currTemp < ambientTempLow) and (outsideTemperature >= ambientTempLow): # if current temperature is lower than and outside temperature is greater than lower threshold
         # a RED LED turns on to indicate that the fan should move heat into the room
@@ -78,7 +78,7 @@ def controlLEDs(currTemp, trend):
         
         # a console alert is printed.
         message = f"Current temperature {currTemp} is less than the lower goal threshold {ambientTempLow} C."
-        printToConsole(message)
+        print_to_console(message)
     elif (currTemp > ambientTempHigh) and (outsideTemperature <= ambientTempHigh): # if current temperature is higher than and outside temperature is lower than higher threshold
         # a BLUE LED turns on to indicate that the fan should move heat out of the room
         board.digital_write(redLEDPin, 0)
@@ -97,37 +97,39 @@ def controlLEDs(currTemp, trend):
         
         # a console alert is printed.
         message = f"Current temperature {currTemp} is higher than the upper goal threshold {ambientTempHigh} C."
-        printToConsole(message)
+        print_to_console(message)
     else:
         # a console alert is printed.
         message = f"Current temperature is not within the ambient range but outside the room has extreme conditions!"
-        printToConsole(message)
+        print_to_console(message)
 
 """
 Function to print outputs to console
 Params: message     -> Message to print
 Return: None
 """
-def printToConsole(message):
+def print_to_console(message):
     print(message)
 
 """
 Function to display a 4-digit alphanumeric message with scrolling
 Params: string          -> string to print
-        scrollDuration  -> the duration each 4 letter substring of the scrolled messsage will display
-        displayDuration -> the amount of time the scrolled message will be displayed for
+        scrollDuration  -> the amount of time the scrolled message will be displayed for 
+        displayDuration -> the duration each 4 letter substring of the scrolled messsage will display
 Return: None
+scrollDuration > displayDuration
 """
 def display_scrolling_string(string, scrollDuration, displayDuration):
-    setDigitalOutputPinMode([pinSER, pinSRCLK, pinRCLK])
-    setDigitalOutputPinMode(digitPins)
+    set_digital_output_pin_mode([pinSER, pinSRCLK, pinRCLK])
+    set_digital_output_pin_mode(digitPins)
 
     scrollingStartTime = time.time()
+    string = string.upper()
     stringLength = len(string)
-    while time.time() - scrollingStartTime < displayDuration:
+    while time.time() - scrollingStartTime < scrollDuration:
         for i in range(stringLength - 3):
             substring = string[i : i + 4]
-            display_four_character_string(substring, scrollDuration)
+            display_four_character_string(substring, displayDuration)
     for _ in range(8): # turn off all digits
         board.digital_write(pinSER, 0)
         board.digital_write(pinSRCLK, 1)
@@ -208,7 +210,7 @@ Function to force switch fan modes (LEDs)
 Params: None
 Return: None
 """
-def forceControlLEDs():
+def force_control_leds():
     if mode: # switch to heating
         board.digital_write(blueLEDPin, 0)
         board.digital_write(redLEDPin, 1)

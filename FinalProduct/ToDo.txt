@@ -1,12 +1,23 @@
 
 # temperatureMap = [(1688802925.168368, 31.001762975359313), (1688802928.3015554, 33.67837517651033), (1688802931.4200087, 34.269746752680426), (1688802934.4823039, 34.22742742053564), (1688802937.5491445, 34.458640193302955), (1688802940.6158848, 34.51409186319104)]
 
-# usage of digital pins 0 and 1 - ask Tian/ James
+# ask Tian/ James
+# usage of digital pins 0 and 1? usage should be avoided in applications
+    # https://www.scikn.in/2020/11/why-digital-pin-0-and-1-should-avoided.html
+    # https://roboticsbackend.com/arduino-uno-pins-a-complete-practical-guide/
+# can we turn on a single 555 timer at a time in a 556 timer?
+    # https://www.elprocus.com/timers-555-556-7555/
+    # https://dlb.sa.edu.au/uahsmoodle/file.php/70/kpsec.freeuk.com/555timer.htm
+    # https://www.youtube.com/watch?v=i0SNb__dkYI&ab_channel=HowToMechatronics
+# using analog pins as digital pins 
+    # https://www.arduino.cc/reference/en/language/functions/digital-io/digitalread/
+    # https://docs.arduino.cc/learn/microcontrollers/analog-input
+    # analog pins are used for analog read, analog write is typically done using pwm signals - https://www.arduino.cc/reference/en/#functions
 
 # what is left to test
-# 1. 2nd thermistor
-# 2. push button
+# 1. 2nd thermistor - code done
+# 2. push button - code done including generating a single trigger signal per press of the button
 # 3. LED sequence - as the temperature rises, light more LEDs with shift reg
-# 4. LED flash
-# 5. single buzzer for rising and falling running on dedicated 556 timer (2 555 timers)
-# 6. ultrasonic and LDR output -> using a buzzer
+# 4. LED flash for rising and falling running on dedicated 556 timer - connect vcc to arduino output? connect to the trigger pin
+# 5. single buzzer for rising and falling running on dedicated 556 timer (2 555 timers) - connect vcc to arduino output? connect to the trigger pin
+# 6. ultrasonic and LDR output -> using two buzzers/ two LEDs or buzzer and LED (should be able to run concurrently)
