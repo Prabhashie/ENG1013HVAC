@@ -52,6 +52,16 @@ CHAR_MAP = {
     'Z': [1, 1, 0, 1, 0, 0, 1],
     '_': [0, 0, 0, 0, 0, 0, 0]
 }
+TEMP_MAP = {
+    0: [1, 0, 0, 0, 0, 0, 0, 0],
+    1: [1, 1, 0, 0, 0, 0, 0, 0],
+    2: [1, 1, 1, 0, 0, 0, 0, 0],
+    3: [1, 1, 1, 1, 0, 0, 0, 0],
+    4: [1, 1, 1, 1, 1, 0, 0, 0],
+    5: [1, 1, 1, 1, 1, 1, 0, 0],
+    6: [1, 1, 1, 1, 1, 1, 1, 0],
+    7: [1, 1, 1, 1, 1, 1, 1, 1],
+}
 # reference values
 minLowTemp = 20
 maxHighTemp = 25
@@ -77,6 +87,29 @@ ambientLightLevel = 0 # ambient light level in the room in voltage units
 temperatureMap = [] # list of tempratures and their recorded times for the last 20s -> to be used for graphing
 lightIntensityMap = [] # list of light intensity value and their recorded times for the last 20s -> to be used for graphing
 systemModeMap = []  # list of system mode values and their recorded times for the last 20s -> to be used for graphing
+# digital input pins
+pushButtonPin = 1 # digital push button pin
+triggerPin = 2 # digital ultrasonic trigger pin
+echoPin = 3 # digital ultrasonic echo pin
+# analog input pins
+thermistorPinIn = 0 # analog thermistor pin inside
+thermistorPinOut = 1 # # analog thermistor pin outside
+ldrPin = 4 # analog LDR pin
+# digital output pins
+redLEDPin = 7
+blueLEDPin = 8
+lowLEDPin = 3
+highLEDPin = 4
+flashingLEDPin = 4
+pinSER1 = 1
+pinSRCLK1 = 2
+pinRCLK1 = 3
+pinSER2 = 7
+pinSRCLK2 = 8 
+pinRCLK2 = 9
+buzzerPin1 = 5
+buzzerPin2 = 6
+digitPins = [9, 10, 11, 12]
 
 """
 Function to set pin mode of digital output pins

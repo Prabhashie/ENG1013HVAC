@@ -8,7 +8,7 @@ Date Created:   04/07/2023
 
 # imports
 from inputs import calibrate_sonar_sensor, calibrate_ldr_sensor, check_temperature, is_switch_mode, check_room_door, check_room_lighting
-from outputs import control_room_environment, force_control_leds, display_four_character_string
+from outputs import control_room_environment, force_control_leds, display_four_character_string, alert_change
 import shared
 import time
 import sys
@@ -34,7 +34,7 @@ def control_system():
         start_polling_loop()
     except KeyboardInterrupt:
         print("\nExiting control system...")
-        # TODO: turn off all control system outputs before shutting down the board
+        # TODO: turn off all control system outputs (except 7 seg) before shutting down the board - 7 seg used in main
         # shared.board.shutdown() - DO NOT shut the board down here, will affect graphing
         return
  
@@ -60,7 +60,7 @@ def start_polling_loop():
         shared.temperatureMap.append((currTime, currTemp))
 
         # calculate trend (increasing/ decreasing/ constant)
-        trend = 1 if currTemp - prevTemp > 0 else -1 if currTemp - prevTemp < 0 else 0 # check if the temperature is increasing/ decreasing or constant
+        trend = 1 if currTemp > prevTemp else -1 if currTemp < prevTemp else 0 # check if the temperature is increasing/ decreasing or constant
         
         # TODO: display temprature on the thermometer
         
@@ -71,6 +71,9 @@ def start_polling_loop():
 
         # control fans (LEDs) based on the temperature
         control_room_environment(currTemp, trend)
+
+        # alert about change in temperature
+        alert_change(trend)
 
         # check for fan operation (LED) mode change trigger - ideally should be setup as an interrupt
         if (is_switch_mode() and not shared.mode): # if push button pressed, switch current mode

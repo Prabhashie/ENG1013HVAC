@@ -11,16 +11,18 @@
 # using analog pins as digital pins 
     # https://www.arduino.cc/reference/en/language/functions/digital-io/digitalread/
     # https://docs.arduino.cc/learn/microcontrollers/analog-input
+    # https://mryslab.github.io/pymata4/pin_modes/
     # analog pins are used for analog read, analog write is typically done using pwm signals - https://www.arduino.cc/reference/en/#functions
 
 # what is left to test
 # 1. 2nd thermistor - code done
 # 2. push button - code done including generating a single trigger signal per press of the button
-# 3. LED sequence - as the temperature rises, light more LEDs with shift reg
-# 4. LED flash for rising and falling running on dedicated 556 timer - connect vcc to arduino output? connect to the trigger pin
-# 5. single buzzer for rising and falling running on dedicated 556 timer (2 555 timers) - connect vcc to arduino output? connect to the trigger pin
-# 6. ultrasonic and LDR output -> using two buzzers/ two LEDs or buzzer and LED (should be able to run concurrently)
+# 3. LED sequence - as the temperature rises, light more LEDs with shift reg - code done
+# 4. LED flash for rising and falling running on dedicated 556 timer - connect vcc pin/ trigger pin to arduino output? turn on and off vcc of the transistor - code done
+# 5. single buzzer for rising and falling running on dedicated 556 timer (2 555 timers) - connect vcc pin/ trigger pin to arduino output? turn on and off vcc of the transistor - code done
+# 6. ultrasonic and LDR output -> using two buzzers/ two LEDs/ buzzer and LED (should be able to run concurrently)
 # 7. additional graphs -> code done
+# 8. init all pins at start and clear all pins before shut down - code done
 
 # shift reg usage
 # 7 seg - 1 (chain for digit pins as well?)
@@ -32,6 +34,7 @@
 # 1 LDR -               1 analog
 
 # ultrasonic -          2 digital
+# push button -         1 digital
 
 # 7 seg -               7 digital
 
@@ -44,3 +47,9 @@
 
 # buzzer -              2 digital
 
+# for 556 timer
+# cannot use same RC circuit with both 555 timers in the same 556 timer - use dedicated RC circuits for each 555 timer
+    # single buzzer, 2 RC ccts for same 555 timer? Could have issues with the nodes - AVOID THIS
+    # single buzzer, 2 RC ccts for each 555 timer
+        # use the transisor as the switch and set vcc of the transistor via arduino digital output
+        # use different caps for different tones

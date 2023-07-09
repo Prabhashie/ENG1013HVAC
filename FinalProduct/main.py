@@ -30,6 +30,9 @@ def main():
     # get user input
     print("Welcome to ENG1013 Smart Fan System!\n")
 
+    # init all arduino pins
+    init_pins()
+
     # show scrolling welcome message message - one message is enough to demonstrate scrolling messages
     welcomeMessage = "Welcome to Smart HVAC"
     scrollDuration = 5
@@ -48,9 +51,13 @@ def main():
             print("Please enter a value between 1 and 3.\n")
         except KeyboardInterrupt:
             print("\nExiting system...\n")
+            # clear all arduino pins
+            clear_pins()
             shared.board.shutdown()
             sys.exit(0)
         except:
+            # clear all arduino pins
+            clear_pins()
             shared.board.shutdown()
             sys.exit(0)
 
@@ -67,6 +74,64 @@ def main():
         elif userInput == 3:
             print("\nTaking you to graphing...")
             graphing()
+
+"""
+Function to init all arduino pins
+Params: None
+Return: None
+"""
+def init_pins():
+    print("Initializing system...\n")
+    # digital input pins
+    shared.set_digital_input_pin_mode([shared.pushButtonPin])
+    # analog input pins
+    shared.set_analog_input_pin_mode([shared.thermistorPinIn, shared.thermistorPinOut, shared.ldrPin]) # callback function not set as temperature values are averaged over time
+    # sonar pins
+    shared.set_sonar_input_pin_mode([shared.triggerPin, shared.echoPin])
+    # digital output pins
+    pinList = [
+        shared.redLEDPin, 
+        shared.blueLEDPin, 
+        shared.lowLEDPin, 
+        shared.highLEDPin, 
+        shared.flashingLEDPin, 
+        shared.pinSER1, 
+        shared.pinSRCLK1, 
+        shared.pinRCLK1, 
+        shared.pinSER2, 
+        shared.pinSRCLK2, 
+        shared.pinRCLK2, 
+        shared.buzzerPin1, 
+        shared.buzzerPin2
+    ]
+    shared.set_digital_output_pin_mode(pinList)
+    shared.set_digital_output_pin_mode(shared.digitPins)
+
+"""
+Function to clear all arduino pins - pins are cleared then and there after outputs but do this to make sure they are all clear when system shuts down
+Params: None
+Return: None
+"""
+def clear_pins():
+    print("Cleaning system...\n")
+    # digital output pins
+    pinList = [
+        shared.redLEDPin, 
+        shared.blueLEDPin, 
+        shared.lowLEDPin, 
+        shared.highLEDPin, 
+        shared.flashingLEDPin, 
+        shared.pinSER1, 
+        shared.pinSRCLK1, 
+        shared.pinRCLK1, 
+        shared.pinSER2, 
+        shared.pinSRCLK2, 
+        shared.pinRCLK2, 
+        shared.buzzerPin1, 
+        shared.buzzerPin2
+    ]
+    for pin in pinList:
+        shared.board.digital_write(pin, 0)
 
 if __name__ == "__main__":
     main()

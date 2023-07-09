@@ -12,14 +12,6 @@ import math
 import time
 
 # global vars
-redLEDPin = 7
-blueLEDPin = 8
-lowLEDPin = 3
-highLEDPin = 4
-digitPins = [9, 10, 11, 12]
-pinSRCLK = 1
-pinSER = 2
-pinRCLK = 3
 
 """
 Function to control LED array and console output based on temperature reading
@@ -34,17 +26,11 @@ Return: None
 def control_room_environment(currTemp, trend):
     if shared.ambientTempLow <= currTemp <= shared.ambientTempHigh: # if current temperature is within goal temp range
         shared.mode = 0 # no fans are on, mode is neither heating nor cooling
-        # fans should be off
-        shared.board.digital_write(blueLEDPin, 0)
-        shared.board.digital_write(redLEDPin, 0)
-        shared.board.digital_write(highLEDPin, 0)
-        shared.board.digital_write(lowLEDPin, 0)
 
         message = f"Current temperature {currTemp} is within the goal range {shared.ambientTempLow} - {shared.ambientTempHigh} C."
         print_to_console(message)
     else:
-        pinList = [redLEDPin, blueLEDPin, lowLEDPin, highLEDPin]
-        shared.set_digital_output_pin_mode(pinList)
+        # pin mode set during system initialization
         control_leds(currTemp, trend)
         
 """
@@ -66,18 +52,18 @@ def control_leds(currTemp, trend):
         shared.systemModeMap.append((time.time(), shared.mode))
 
         # a RED LED turns on to indicate that the fan should move heat into the room
-        shared.board.digital_write(blueLEDPin, 0)
-        shared.board.digital_write(redLEDPin, 1)
+        shared.board.digital_write(shared.blueLEDPin, 0)
+        shared.board.digital_write(shared.redLEDPin, 1)
         # time.sleep(2) # pause the execution of your Arduino program for 2s
         
         # 2 LEDs should be used, to indicate a low and high ventilation speed
         if (trend <= 0):
-            shared.board.digital_write(highLEDPin, 0)
-            shared.board.digital_write(lowLEDPin, 1)
+            shared.board.digital_write(shared.highLEDPin, 0)
+            shared.board.digital_write(shared.lowLEDPin, 1)
             # time.sleep(2)
         else:
-            shared.board.digital_write(lowLEDPin, 0)
-            shared.board.digital_write(highLEDPin, 1)
+            shared.board.digital_write(shared.lowLEDPin, 0)
+            shared.board.digital_write(shared.highLEDPin, 1)
             # time.sleep(2)
         
         # a console alert is printed.
@@ -88,18 +74,18 @@ def control_leds(currTemp, trend):
         shared.systemModeMap.append((time.time(), shared.mode))
 
         # a BLUE LED turns on to indicate that the fan should move heat out of the room
-        shared.board.digital_write(redLEDPin, 0)
-        shared.board.digital_write(blueLEDPin, 1) 
+        shared.board.digital_write(shared.redLEDPin, 0)
+        shared.board.digital_write(shared.blueLEDPin, 1) 
         # time.sleep(2)
         
         # 2 LEDs should be used, to indicate a low and high ventilation speed
         if (trend <= 0):
-            shared.board.digital_write(highLEDPin, 0)
-            shared.board.digital_write(lowLEDPin, 1)
+            shared.board.digital_write(shared.highLEDPin, 0)
+            shared.board.digital_write(shared.lowLEDPin, 1)
             # time.sleep(2)
         else:
-            shared.board.digital_write(lowLEDPin, 0)
-            shared.board.digital_write(highLEDPin, 1)
+            shared.board.digital_write(shared.lowLEDPin, 0)
+            shared.board.digital_write(shared.highLEDPin, 1)
             # time.sleep(2)
         
         # a console alert is printed.
@@ -110,6 +96,13 @@ def control_leds(currTemp, trend):
         # a console alert is printed.
         message = f"Current temperature is not within the ambient range but outside the room has extreme conditions!"
         print_to_console(message)
+    
+    # clear output pins
+    # fans should be off - this is done because we cannot run different functionality asynchronously (only synchronous calls are in the m=unit scope)
+    shared.board.digital_write(shared.blueLEDPin, 0)
+    shared.board.digital_write(shared.redLEDPin, 0)
+    shared.board.digital_write(shared.highLEDPin, 0)
+    shared.board.digital_write(shared.lowLEDPin, 0)
 
 """
 Function to print outputs to console
@@ -128,8 +121,7 @@ Return: None
 scrollDuration > displayDuration
 """
 def display_scrolling_string(string, scrollDuration, displayDuration):
-    shared.set_digital_output_pin_mode([pinSER, pinSRCLK, pinRCLK])
-    shared.set_digital_output_pin_mode(digitPins)
+    # pin mode set during system initialization
 
     scrollingStartTime = time.time()
     string = string.upper()
@@ -138,15 +130,17 @@ def display_scrolling_string(string, scrollDuration, displayDuration):
         for i in range(stringLength - 3):
             substring = string[i : i + 4]
             display_four_character_string(substring, displayDuration)
+    """
     for _ in range(8): # turn off all digits - can use CLR pin in the shift reg at the cost of an additional arduino pin
-        shared.board.digital_write(pinSER, 0)
-        shared.board.digital_write(pinSRCLK, 1)
-        shared.board.digital_write(pinSRCLK, 0)
+        shared.board.digital_write(pinSER1, 0)
+        shared.board.digital_write(pinSRCLK1, 1)
+        shared.board.digital_write(pinSRCLK1, 0)
         
-    shared.board.digital_write(pinRCLK, 1)
-    shared.board.digital_write(pinRCLK, 0)
+    shared.board.digital_write(pinRCLK1, 1)
+    shared.board.digital_write(pinRCLK1, 0)
     for i in digitPins: # turn off all digit pins (set to one as digit pins are active low)
         shared.board.digital_write(i,1)
+    """
 
 """
 Function to display a 4-digit alphanumeric message
@@ -160,14 +154,16 @@ def display_four_character_string(string, duration):
     while time.time() - fourCharacterStartTime < duration:
         for i in range(4):
             display_character(string[i], i+1)
-    for _ in range(8): # turn off all digits
-        shared.board.digital_write(pinSER, 0)
-        shared.board.digital_write(pinSRCLK, 1)
-        shared.board.digital_write(pinSRCLK, 0)
 
-    shared.board.digital_write(pinRCLK, 1)
-    shared.board.digital_write(pinRCLK, 0)
-    for i in digitPins: # turn off all digit pins (set to one as digit pins are active low)
+    # clear output pins
+    for _ in range(8): # turn off all digits - can use CLR pin in the shift reg at the cost of an additional arduino pin
+        shared.board.digital_write(shared.pinSER1, 0)
+        shared.board.digital_write(shared.pinSRCLK1, 1)
+        shared.board.digital_write(shared.pinSRCLK1, 0)
+
+    shared.board.digital_write(shared.pinRCLK1, 1)
+    shared.board.digital_write(shared.pinRCLK1, 0)
+    for i in shared.digitPins: # turn off all digit pins (set to one as digit pins are active low)
         shared.board.digital_write(i,1)
 
 """
@@ -179,36 +175,110 @@ Return: None
 def display_character(character, digit):
 
     segments = shared.CHAR_MAP[character]
-    for i in digitPins:
+    for i in shared.digitPins:
         shared.board.digital_write(i, 1) # turn off all digits
     for _ in range(8): # clear all the segments and turn off
-        shared.board.digital_write(pinSER, 0)
-        shared.board.digital_write(pinSRCLK, 1)
-        shared.board.digital_write(pinSRCLK, 0)
+        shared.board.digital_write(shared.pinSER1, 0)
+        shared.board.digital_write(shared.pinSRCLK1, 1)
+        shared.board.digital_write(shared.pinSRCLK1, 0)
 
-    shared.board.digital_write(pinRCLK, 1)
-    shared.board.digital_write(pinRCLK, 0)
+    shared.board.digital_write(shared.pinRCLK1, 1)
+    shared.board.digital_write(shared.pinRCLK1, 0)
     
     # pins should be written g - a
     # connect the shift reg to the 7 seg accordingly
     for i in range(6, -1, -1): # write value to the 7 seg
-        shared.board.digital_write(pinSER, segments[i])
-        shared.board.digital_write(pinSRCLK, 1)
-        shared.board.digital_write(pinSRCLK, 0)
+        shared.board.digital_write(shared.pinSER1, segments[i])
+        shared.board.digital_write(shared.pinSRCLK1, 1)
+        shared.board.digital_write(shared.pinSRCLK1, 0)
    
-    shared.board.digital_write(pinRCLK, 1)
-    shared.board.digital_write(pinRCLK, 0)
+    shared.board.digital_write(shared.pinRCLK1, 1)
+    shared.board.digital_write(shared.pinRCLK1, 0)
     
-    shared.board.digital_write(digitPins[digit - 1], 0) # turn on the digit pin
+    shared.board.digital_write(shared.digitPins[digit - 1], 0) # turn on the digit pin
     time.sleep(0.025)
 
-# TODO: Thermometer 
+"""
+Function to display temperatures on thermometer
+Params: temp -> temperature to display
+Return: None
+< 18
+18 - 20
+20 - 22
+22 - 24
+24 - 26
+26 - 28
+28 - 30
+> 30
+"""
+def display_temeprature(temp):
+    # pin mode set during system initialization
+    if temp < 18:
+        code = shared.TEMP_MAP[0]
+    elif 18 <= temp < 20:
+        code = shared.TEMP_MAP[1]
+    elif 20 <= temp < 22:
+        code = shared.TEMP_MAP[2]
+    elif 22 <= temp < 24:
+        code = shared.TEMP_MAP[3]
+    elif 24 <= temp < 26:
+        code = shared.TEMP_MAP[4]
+    elif 26 <= temp < 28:
+        code = shared.TEMP_MAP[5]
+    elif 28 <= temp < 30:
+        code = shared.TEMP_MAP[6]
+    else:
+        code = shared.TEMP_MAP[7]
 
-# TODO: Flashing LED
-    # one for both rapidly increasing and decreasing
+    for _ in range(8): # clear all the segments and turn off
+        shared.board.digital_write(shared.pinSER2, 0)
+        shared.board.digital_write(shared.pinSRCLK2, 1)
+        shared.board.digital_write(shared.pinSRCLK2, 0)
+
+    shared.board.digital_write(shared.pinRCLK2, 1)
+    shared.board.digital_write(shared.pinRCLK2, 0)
+
+    for i in range(6, -1, -1): # write value to the 7 seg
+        shared.board.digital_write(shared.pinSER2, code[i])
+        shared.board.digital_write(shared.pinSRCLK2, 1)
+        shared.board.digital_write(shared.pinSRCLK2, 0)
+   
+    shared.board.digital_write(shared.pinRCLK2, 1)
+    shared.board.digital_write(shared.pinRCLK2, 0)
     
-# TODO: Buzzer
-    # one tone for each rapidly increasing and decreasing
+    time.sleep(0.5) # might not need to sleep here as we do not want to display different values using the same sr at the same time
+
+    for _ in range(8): # clear all the segments and turn off
+        shared.board.digital_write(shared.pinSER2, 0)
+        shared.board.digital_write(shared.pinSRCLK2, 1)
+        shared.board.digital_write(shared.pinSRCLK2, 0)
+
+    shared.board.digital_write(shared.pinRCLK2, 1)
+    shared.board.digital_write(shared.pinRCLK2, 0)
+    
+"""
+Function to flash LED and sound buzzer based on change of temperature
+Params: trend -> if the temperature is increasing or decreasing or stable in the current temperature range
+Return: None
+"""
+def alert_change(trend):
+    # pin mode set during system initialization
+    if not trend: # if temperature is changing
+        # flash LED
+        shared.board.digital_write(shared.flashingLEDPin, 1)
+        if trend == 1: # increasing temperature
+            shared.board.digital_write(shared.buzzerPin2, 0)
+            shared.board.digital_write(shared.buzzerPin1, 1)
+            display_four_character_string("RISE", 0.5)
+        else: # decreasing temperature
+            shared.board.digital_write(shared.buzzerPin1, 0)
+            shared.board.digital_write(shared.buzzerPin2, 1)
+            display_four_character_string("FALL", 0.5)
+    time.sleep(0.5)
+    # clear output pins
+    shared.board.digital_write(shared.flashingLEDPin, 0)
+    shared.board.digital_write(shared.buzzerPin1, 0)
+    shared.board.digital_write(shared.buzzerPin2, 0)
 
 # TODO: Response to Ultrasonic
 
@@ -221,8 +291,13 @@ Return: None
 """
 def force_control_leds():
     if shared.mode == 1: # switch to heating
-        shared.board.digital_write(blueLEDPin, 0)
-        shared.board.digital_write(redLEDPin, 1)
+        shared.board.digital_write(shared.blueLEDPin, 0)
+        shared.board.digital_write(shared.redLEDPin, 1)
     elif shared.mode == -1:
-        shared.board.digital_write(redLEDPin, 0)
-        shared.board.digital_write(blueLEDPin, 1) 
+        shared.board.digital_write(shared.redLEDPin, 0)
+        shared.board.digital_write(shared.blueLEDPin, 1) 
+    
+    time.sleep(0.5)
+    # clear output pins
+    shared.board.digital_write(shared.redLEDPin, 0)
+    shared.board.digital_write(shared.blueLEDPin, 0)
