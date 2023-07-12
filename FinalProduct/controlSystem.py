@@ -8,7 +8,7 @@ Date Created:   04/07/2023
 
 # imports
 from inputs import calibrate_sonar_sensor, calibrate_ldr_sensor, check_temperature, is_switch_mode, check_room_door, check_room_lighting
-from outputs import control_room_environment, force_control_leds, display_four_character_string, alert_change
+from outputs import control_room_environment, force_control_leds, display_four_character_string, alert_change, display_temeprature
 import shared
 import time
 import sys
@@ -62,7 +62,8 @@ def start_polling_loop():
         # calculate trend (increasing/ decreasing/ constant)
         trend = 1 if currTemp > prevTemp else -1 if currTemp < prevTemp else 0 # check if the temperature is increasing/ decreasing or constant
         
-        # TODO: display temprature on the thermometer
+        # display temprature on the thermometer
+        display_temeprature(currTemp)
         
         # display temprature on the 7 seg - 4 digit alpha-numeric without scrolling
         string = str(int(currTemp))
@@ -76,8 +77,8 @@ def start_polling_loop():
         alert_change(trend)
 
         # check for fan operation (LED) mode change trigger - ideally should be setup as an interrupt
-        if (is_switch_mode() and not shared.mode): # if push button pressed, switch current mode
-            shared.mode = shared.mode * -1
+        if (is_switch_mode() and shared.mode): # if push button pressed, switch current mode
+            shared.mode = shared.mode * (-1)
             shared.systemModeMap.append((time.time(), shared.mode))
             force_control_leds()
 

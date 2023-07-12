@@ -51,13 +51,6 @@ def main():
             print("Please enter a value between 1 and 3.\n")
         except KeyboardInterrupt:
             print("\nExiting system...\n")
-            # clear all arduino pins
-            clear_pins()
-            shared.board.shutdown()
-            sys.exit(0)
-        except:
-            # clear all arduino pins
-            clear_pins()
             shared.board.shutdown()
             sys.exit(0)
 
@@ -85,9 +78,12 @@ def init_pins():
     # digital input pins
     shared.set_digital_input_pin_mode([shared.pushButtonPin])
     # analog input pins
-    shared.set_analog_input_pin_mode([shared.thermistorPinIn, shared.thermistorPinOut, shared.ldrPin]) # callback function not set as temperature values are averaged over time
+    shared.set_analog_input_pin_mode([shared.thermistorPinIn, 
+                                      # shared.thermistorPinOut, 
+                                      shared.ldrPin]) # callback function not set as temperature values are averaged over time
     # sonar pins
-    shared.set_sonar_input_pin_mode([shared.triggerPin, shared.echoPin])
+    shared.set_sonar_input_pin_mode([shared.triggerPin, 
+                                     shared.echoPin])
     # digital output pins
     pinList = [
         shared.redLEDPin, 
@@ -95,17 +91,20 @@ def init_pins():
         shared.lowLEDPin, 
         shared.highLEDPin, 
         shared.flashingLEDPin, 
-        shared.pinSER1, 
-        shared.pinSRCLK1, 
-        shared.pinRCLK1, 
-        shared.pinSER2, 
-        shared.pinSRCLK2, 
-        shared.pinRCLK2, 
+        # shared.pinSER1, 
+        # shared.pinSRCLK1, 
+        # shared.pinRCLK1, 
+        # shared.pinSER2, 
+        # shared.pinSRCLK2, 
+        # shared.pinRCLK2,
+        # shared.pinSER3, 
+        # shared.pinSRCLK3, 
+        # shared.pinRCLK3, 
         shared.buzzerPin1, 
         shared.buzzerPin2
     ]
     shared.set_digital_output_pin_mode(pinList)
-    shared.set_digital_output_pin_mode(shared.digitPins)
+    # shared.set_digital_output_pin_mode(shared.digitPins)
 
 """
 Function to clear all arduino pins - pins are cleared then and there after outputs but do this to make sure they are all clear when system shuts down
@@ -121,12 +120,15 @@ def clear_pins():
         shared.lowLEDPin, 
         shared.highLEDPin, 
         shared.flashingLEDPin, 
-        shared.pinSER1, 
-        shared.pinSRCLK1, 
-        shared.pinRCLK1, 
-        shared.pinSER2, 
-        shared.pinSRCLK2, 
-        shared.pinRCLK2, 
+        # shared.pinSER1, 
+        # shared.pinSRCLK1, 
+        # shared.pinRCLK1, 
+        # shared.pinSER2, 
+        # shared.pinSRCLK2, 
+        # shared.pinRCLK2,
+        # shared.pinSER3, 
+        # shared.pinSRCLK3, 
+        # shared.pinRCLK3, 
         shared.buzzerPin1, 
         shared.buzzerPin2
     ]

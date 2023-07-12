@@ -88,28 +88,31 @@ temperatureMap = [] # list of tempratures and their recorded times for the last 
 lightIntensityMap = [] # list of light intensity value and their recorded times for the last 20s -> to be used for graphing
 systemModeMap = []  # list of system mode values and their recorded times for the last 20s -> to be used for graphing
 # digital input pins
-pushButtonPin = 1 # digital push button pin
-triggerPin = 2 # digital ultrasonic trigger pin
-echoPin = 3 # digital ultrasonic echo pin
+pushButtonPin = 9 # digital push button pin
+triggerPin = 10 # digital ultrasonic trigger pin
+echoPin = 11 # digital ultrasonic echo pin
 # analog input pins
 thermistorPinIn = 0 # analog thermistor pin inside
 thermistorPinOut = 1 # # analog thermistor pin outside
-ldrPin = 4 # analog LDR pin
+ldrPin = 1 # analog LDR pin
 # digital output pins
-redLEDPin = 7
-blueLEDPin = 8
-lowLEDPin = 3
-highLEDPin = 4
-flashingLEDPin = 4
-pinSER1 = 1
-pinSRCLK1 = 2
-pinRCLK1 = 3
-pinSER2 = 7
-pinSRCLK2 = 8 
-pinRCLK2 = 9
-buzzerPin1 = 5
-buzzerPin2 = 6
-digitPins = [9, 10, 11, 12]
+redLEDPin = 2
+blueLEDPin = 3
+lowLEDPin = 4
+highLEDPin = 5
+flashingLEDPin = 6
+pinSER1 = 5
+pinSRCLK1 = 6
+pinRCLK1 = 7
+pinSER2 = 5
+pinSRCLK2 = 6 
+pinRCLK2 = 7
+pinSER3 = 7
+pinSRCLK3 = 8 
+pinRCLK3 = 9
+buzzerPin1 = 7
+buzzerPin2 = 8
+digitPins = [8, 9, 10, 11]
 
 """
 Function to set pin mode of digital output pins

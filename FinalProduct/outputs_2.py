@@ -12,6 +12,24 @@ import math
 import time
 
 # global vars
+"""
+order
+1. fan - heating mode (red LED)
+2. fan - cooling mode (blue LED)
+3. fan - low speed
+4. fan - high speed
+5. flashing LED
+6. ultrasonic response LED
+7. ldr response LED
+"""
+# ledArray = [0, 0, 0, 0, 0, 0, 0, 0]
+iRedLED = 0
+iBlueLED = 1
+iLowLED = 2
+iHighLED = 3
+iFlashingLED = 4
+iUltrasonicLED = 5
+iLDRLED = 6
 
 """
 Function to control LED array and console output based on temperature reading
@@ -26,12 +44,8 @@ Return: None
 def control_room_environment(currTemp, trend):
     if shared.ambientTempLow <= currTemp <= shared.ambientTempHigh: # if current temperature is within goal temp range
         shared.mode = 0 # no fans are on, mode is neither heating nor cooling
-        # clear output pins
-        # fans should be off - this is done because we cannot run different functionality asynchronously (only synchronous calls are in the unit scope)
-        shared.board.digital_write(shared.blueLEDPin, 0)
-        shared.board.digital_write(shared.redLEDPin, 0)
-        shared.board.digital_write(shared.highLEDPin, 0)
-        shared.board.digital_write(shared.lowLEDPin, 0)
+        write_to_all_LEDs([0, 0, 0, 0, 0, 0, 0, 0]) # turn off all the LED responses
+        
         message = f"Current temperature {currTemp} is within the goal range {shared.ambientTempLow} - {shared.ambientTempHigh} C."
         print_to_console(message)
     else:
@@ -56,46 +70,45 @@ def control_leds(currTemp, trend):
         shared.mode = 1 # heating mode on
         shared.systemModeMap.append((time.time(), shared.mode))
 
+        ledArray = [0, 0, 0, 0, 0, 0, 0, 0]
         # a RED LED turns on to indicate that the fan should move heat into the room
-        shared.board.digital_write(shared.blueLEDPin, 0)
-        shared.board.digital_write(shared.redLEDPin, 1)
+        ledArray[iRedLED] = 1
         # time.sleep(2) # pause the execution of your Arduino program for 2s
         
         # 2 LEDs should be used, to indicate a low and high ventilation speed
         if (trend <= 0):
-            shared.board.digital_write(shared.lowLEDPin, 0)
-            shared.board.digital_write(shared.highLEDPin, 1)
+            ledArray[iLowLED] = 1
             # time.sleep(2)
         else:
-            shared.board.digital_write(shared.highLEDPin, 0)
-            shared.board.digital_write(shared.lowLEDPin, 1)
+            ledArray[iHighLED] = 1
             # time.sleep(2)
-        
+        # write to LEDs
+        write_to_all_LEDs(ledArray)
         # a console alert is printed.
         message = f"Current temperature {currTemp} is less than the lower goal threshold {shared.ambientTempLow} C."
         print_to_console(message)
+        # time.sleep(0.5)
     elif (currTemp > shared.ambientTempHigh) and (shared.outsideTemperature <= shared.ambientTempHigh): # if current temperature is higher than and outside temperature is lower than higher threshold
         shared.mode = -1 # cooling mode on
         shared.systemModeMap.append((time.time(), shared.mode))
 
         # a BLUE LED turns on to indicate that the fan should move heat out of the room
-        shared.board.digital_write(shared.redLEDPin, 0)
-        shared.board.digital_write(shared.blueLEDPin, 1) 
+        ledArray[iBlueLED] = 1
         # time.sleep(2)
         
         # 2 LEDs should be used, to indicate a low and high ventilation speed
         if (trend <= 0):
-            shared.board.digital_write(shared.highLEDPin, 0)
-            shared.board.digital_write(shared.lowLEDPin, 1)
+            ledArray[iLowLED] = 1
             # time.sleep(2)
         else:
-            shared.board.digital_write(shared.lowLEDPin, 0)
-            shared.board.digital_write(shared.highLEDPin, 1)
+            ledArray[iHighLED] = 1
             # time.sleep(2)
-        
+        # write to LEDs
+        write_to_all_LEDs(ledArray)
         # a console alert is printed.
         message = f"Current temperature {currTemp} is higher than the upper goal threshold {shared.ambientTempHigh} C."
         print_to_console(message)
+        # time.sleep(0.5)
     else:
         shared.mode = 0 # no fans are on, mode is neither heating nor cooling
         # a console alert is printed.
@@ -103,11 +116,8 @@ def control_leds(currTemp, trend):
         print_to_console(message)
     
     # clear output pins
-    # fans should be off - this is done because we cannot run different functionality asynchronously (only synchronous calls are in the unit scope)
-    # shared.board.digital_write(shared.blueLEDPin, 0)
-    # shared.board.digital_write(shared.redLEDPin, 0)
-    # shared.board.digital_write(shared.highLEDPin, 0)
-    # shared.board.digital_write(shared.lowLEDPin, 0)
+    # fans should be off - this is done because we cannot run different functionality asynchronously (only synchronous calls are in the m=unit scope)
+    # write_to_all_LEDs([0, 0, 0, 0, 0, 0, 0, 0])
 
 """
 Function to print outputs to console
@@ -161,6 +171,10 @@ def display_four_character_string(string, duration):
             display_character(string[i], i+1)
 
     # clear output pins
+    for _ in range(4): # turn off all digits
+        shared.board.digital_write(shared.pinSER1, 1)
+        shared.board.digital_write(shared.pinSRCLK1, 1)
+        shared.board.digital_write(shared.pinSRCLK1, 0)  
     for _ in range(8): # turn off all digits - can use CLR pin in the shift reg at the cost of an additional arduino pin
         shared.board.digital_write(shared.pinSER1, 0)
         shared.board.digital_write(shared.pinSRCLK1, 1)
@@ -168,21 +182,24 @@ def display_four_character_string(string, duration):
 
     shared.board.digital_write(shared.pinRCLK1, 1)
     shared.board.digital_write(shared.pinRCLK1, 0)
-    for i in shared.digitPins: # turn off all digit pins (set to one as digit pins are active low)
-        shared.board.digital_write(i,1)
 
 """
-Function to display a character in the 7 seg
+Function to display a character in the 7 seg with 2 shift regs chained
 Params: character   -> char to display
         digit       -> digit to turn on
 Return: None
+datasheet -> https://www.ti.com/lit/ds/symlink/sn74hc595.pdf
+chaining -> https://docs.arduino.cc/tutorials/communication/guide-to-shift-out
 """
 def display_character(character, digit):
 
     segments = shared.CHAR_MAP[character]
-    for i in shared.digitPins:
-        shared.board.digital_write(i, 1) # turn off all digits
-    for _ in range(8): # clear all the segments and turn off
+
+    for _ in range(4): # turn off all digits
+        shared.board.digital_write(shared.pinSER1, 1)
+        shared.board.digital_write(shared.pinSRCLK1, 1)
+        shared.board.digital_write(shared.pinSRCLK1, 0) 
+    for _ in range(12): # clear all the segments and turn off
         shared.board.digital_write(shared.pinSER1, 0)
         shared.board.digital_write(shared.pinSRCLK1, 1)
         shared.board.digital_write(shared.pinSRCLK1, 0)
@@ -190,6 +207,15 @@ def display_character(character, digit):
     shared.board.digital_write(shared.pinRCLK1, 1)
     shared.board.digital_write(shared.pinRCLK1, 0)
     
+
+    # pins should be written 1 - 4
+    # connect the shift reg to the 7 seg accordingly
+    digits = [1, 1, 1, 1]
+    digits[digit - 1] = 0 # turn on the digit pin
+    for i in range(4):
+        shared.board.digital_write(shared.pinSER1, digits[i])
+        shared.board.digital_write(shared.pinSRCLK1, 1)
+        shared.board.digital_write(shared.pinSRCLK1, 0)
     # pins should be written g - a
     # connect the shift reg to the 7 seg accordingly
     for i in range(6, -1, -1): # write value to the 7 seg
@@ -199,8 +225,7 @@ def display_character(character, digit):
    
     shared.board.digital_write(shared.pinRCLK1, 1)
     shared.board.digital_write(shared.pinRCLK1, 0)
-    
-    shared.board.digital_write(shared.digitPins[digit - 1], 0) # turn on the digit pin
+
     time.sleep(0.025)
 
 """
@@ -243,7 +268,7 @@ def display_temeprature(temp):
     shared.board.digital_write(shared.pinRCLK2, 1)
     shared.board.digital_write(shared.pinRCLK2, 0)
 
-    for i in range(8):
+    for i in range(6, -1, -1): # write value to the 7 seg
         shared.board.digital_write(shared.pinSER2, code[i])
         shared.board.digital_write(shared.pinSRCLK2, 1)
         shared.board.digital_write(shared.pinSRCLK2, 0)
@@ -258,9 +283,11 @@ Return: None
 """
 def alert_change(trend):
     # pin mode set during system initialization
-    if trend: # if temperature is changing
+    if not trend: # if temperature is changing
         # flash LED
-        shared.board.digital_write(shared.flashingLEDPin, 1)
+        ledArray = [0, 0, 0, 0, 0, 0, 0, 0]
+        ledArray[iFlashingLED] = 1
+        write_to_all_LEDs(ledArray)
         if trend == 1: # increasing temperature
             shared.board.digital_write(shared.buzzerPin2, 0)
             shared.board.digital_write(shared.buzzerPin1, 1)
@@ -269,9 +296,10 @@ def alert_change(trend):
             shared.board.digital_write(shared.buzzerPin1, 0)
             shared.board.digital_write(shared.buzzerPin2, 1)
             display_four_character_string("FALL", 0.5)
-    time.sleep(0.5)
+    
+    # time.sleep(0.5)
     # clear output pins
-    # shared.board.digital_write(shared.flashingLEDPin, 0)
+    # write_to_all_LEDs([0, 0, 0, 0, 0, 0, 0, 0])
     # shared.board.digital_write(shared.buzzerPin1, 0)
     # shared.board.digital_write(shared.buzzerPin2, 0)
 
@@ -285,16 +313,35 @@ Params: None
 Return: None
 """
 def force_control_leds():
+    ledArray = [0, 0, 0, 0, 0, 0, 0, 0]
+    fromMode = ""
+    toMode = ""
     if shared.mode == 1: # switch to heating
-        print("Setting red")
-        shared.board.digital_write(shared.blueLEDPin, 0)
-        shared.board.digital_write(shared.redLEDPin, 1)
+        ledArray[iRedLED] = 1
+        fromMode = "cooling"
+        toMode = "heating"
     elif shared.mode == -1:
-        print("Setting blue")
-        shared.board.digital_write(shared.redLEDPin, 0)
-        shared.board.digital_write(shared.blueLEDPin, 1) 
-    
+        ledArray[iBlueLED] = 1
+        fromMode = "heating"
+        toMode = "cooling"
+
+    write_to_all_LEDs(ledArray)
+    print(f"Control system mode changed from {fromMode} to {toMode} \n")
+
     # time.sleep(0.5)
     # clear output pins
-    # shared.board.digital_write(shared.redLEDPin, 0)
-    # shared.board.digital_write(shared.blueLEDPin, 0)
+    # write_to_all_LEDs([0, 0, 0, 0, 0, 0, 0, 0])
+
+
+"""
+Function to write data to all response LEDs using shift register
+Params: ledArray -> array containing values to write
+Return: None
+"""
+def write_to_all_LEDs(ledArray):
+    for i in range(len(ledArray)):
+        shared.board.digital_write(shared.pinSER3, ledArray[i])
+        shared.board.digital_write(shared.pinSRCLK3, 1)
+        shared.board.digital_write(shared.pinSRCLK3, 0)
+    shared.board.digital_write(shared.pinRCLK3, 1)
+    shared.board.digital_write(shared.pinRCLK3, 0)

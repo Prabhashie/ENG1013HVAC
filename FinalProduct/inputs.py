@@ -75,9 +75,10 @@ def is_switch_mode(): # ideally the push button press should generate an interru
     # pin mode set during system initialization
     readings = []
     for _ in range(10):
-        readings.push(shared.board.digital_read(shared.pushButtonPin)[0])
+        readings.append(shared.board.digital_read(shared.pushButtonPin)[0])
 
     if sum(readings)/ len(readings) >= 0.5: # switch the mode if button pressed
+        print(f"{readings}")
         return True
     return False
 

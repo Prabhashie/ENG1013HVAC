@@ -29,23 +29,22 @@
 # fan LEDs, flashing LED, LDR response, ultrasonic response - 1
 # LED sequence - 1
 
-# arduino pin usage
+# arduino pin usage - 6 analog and 11 digital
 # 2 thermistors -       2 analog
 # 1 LDR -               1 analog
+# push button -         1 analog as digital
 
 # ultrasonic -          2 digital
-# push button -         1 digital
+# buzzer -              2 digital
 
-# 7 seg -               7 digital
+# 7 seg -               7 digital (3 for shift reg if chained)
 
 # fan LEDs -            4 digital
 # flashing LED -        1 digital
 # LDR response -        1 digital
 # ultrasonic response - 1 digital
 
-# LED sequence -        8 digital
-
-# buzzer -              2 digital
+# LED sequence -        3 digital (for shit reg) 
 
 # for 556 timer
 # cannot use same RC circuit with both 555 timers in the same 556 timer - use dedicated RC circuits for each 555 timer
