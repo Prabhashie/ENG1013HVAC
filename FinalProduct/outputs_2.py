@@ -200,7 +200,7 @@ def display_character(character, digit):
         shared.board.digital_write(shared.pinSER1, 1)
         shared.board.digital_write(shared.pinSRCLK1, 1)
         shared.board.digital_write(shared.pinSRCLK1, 0) 
-    for _ in range(12): # clear all the segments and turn off
+    for _ in range(8): # clear all the segments and turn off
         shared.board.digital_write(shared.pinSER1, 0)
         shared.board.digital_write(shared.pinSRCLK1, 1)
         shared.board.digital_write(shared.pinSRCLK1, 0)
@@ -363,9 +363,19 @@ Return: None
 """
 def write_to_all_LEDs(ledArray):
     # pin mode set during system initialization
+    if sum(ledArray) != 0:
+        for _ in range(8): # clear all the segments and turn off
+            shared.board.digital_write(shared.pinSER3, 0)
+            shared.board.digital_write(shared.pinSRCLK3, 1)
+            shared.board.digital_write(shared.pinSRCLK3, 0)
+
+        shared.board.digital_write(shared.pinRCLK3, 1)
+        shared.board.digital_write(shared.pinRCLK3, 0)
+
     for i in range(len(ledArray)):
         shared.board.digital_write(shared.pinSER3, ledArray[i])
         shared.board.digital_write(shared.pinSRCLK3, 1)
         shared.board.digital_write(shared.pinSRCLK3, 0)
+
     shared.board.digital_write(shared.pinRCLK3, 1)
     shared.board.digital_write(shared.pinRCLK3, 0)
