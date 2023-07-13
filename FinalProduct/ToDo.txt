@@ -20,7 +20,7 @@
 # 3. LED sequence - as the temperature rises, light more LEDs with shift reg - code done
 # 4. LED flash for rising and falling running on dedicated 556 timer - connect vcc pin/ trigger pin to arduino output? turn on and off vcc of the transistor - code done
 # 5. single buzzer for rising and falling running on dedicated 556 timer (2 555 timers) - connect vcc pin/ trigger pin to arduino output? turn on and off vcc of the transistor - code done
-# 6. ultrasonic and LDR output -> using two buzzers/ two LEDs/ buzzer and LED (should be able to run concurrently)
+# 6. ultrasonic and LDR output -> using two buzzers/ two LEDs/ buzzer and LED (should be able to run concurrently) - code done for 2 LEDs
 # 7. additional graphs -> code done
 # 8. init all pins at start and clear all pins before shut down - code done
 

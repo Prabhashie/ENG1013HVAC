@@ -8,7 +8,7 @@ Date Created:   04/07/2023
 
 # imports
 from inputs import calibrate_sonar_sensor, calibrate_ldr_sensor, check_temperature, is_switch_mode, check_room_door, check_room_lighting
-from outputs import control_room_environment, force_control_leds, display_four_character_string, alert_change, display_temeprature
+from outputs import control_room_environment, force_control_leds, display_four_character_string, alert_change, display_temeprature, ultrasonicResponse, ldrResponse
 import shared
 import time
 import sys
@@ -85,7 +85,11 @@ def start_polling_loop():
         # check if the room door is open - ideally should be setup as an interrupt
         currDist, currTime = check_room_door()
         if (currDist > (shared.closedDoorDistance + shared.doorTolerence)): # door is open
-            pass
+            shared.isDoorOpen = 1
+            ultrasonicResponse()
+        elif (shared.isDoorOpen): # if previously door was open but now closed, stop ultrasonic response
+            shared.isDoorOpen = 0
+            ultrasonicResponse()
 
         # check if the lighting in the room changed - ideally should be setup as an interrupt
         currLightLevel, currTime = check_room_lighting()
@@ -98,9 +102,14 @@ def start_polling_loop():
         shared.lightIntensityMap.append((currTime, currLightLevelVolts))
 
         if (currLightLevel > (shared.ambientLightLevel + shared.lightTolerence)): # lighting increased inside the room
-            pass
+            shared.isLightingNotAmbient = 1
+            ldrResponse()
         elif (currLightLevel < (shared.ambientLightLevel - shared.lightTolerence)): # lighting decreased inside the room
-            pass
+            shared.isLightingNotAmbient = 1
+            ldrResponse()
+        elif (shared.isLightingNotAmbient): # if previously not ambient but now ambient, stop ldr response
+            shared.isLightingNotAmbient = 0
+            ldrResponse()
         
         # adjust stored mode data
         while (len(shared.systemModeMap) != 0) and ((shared.systemModeMap[-1][0] - shared.systemModeMap[0][0]) > 20): # only keep the temperature data from last 20s

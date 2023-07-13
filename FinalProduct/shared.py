@@ -83,6 +83,8 @@ mode = 0 # 1 if heating -1 if cooling 0 if neither
 outsideTemperature = 0 # temperature outside the model room in C
 closedDoorDistance = 0 # distance to the door from sonar sensor when closed in cm
 ambientLightLevel = 0 # ambient light level in the room in voltage units
+isLightingNotAmbient = 0 # identif if lighting inside the room is ambient
+isDoorOpen = 0 # closed/ open status of the door -> 0 means closed
 # data stores
 temperatureMap = [] # list of tempratures and their recorded times for the last 20s -> to be used for graphing
 lightIntensityMap = [] # list of light intensity value and their recorded times for the last 20s -> to be used for graphing
@@ -101,6 +103,8 @@ blueLEDPin = 3
 lowLEDPin = 4
 highLEDPin = 5
 flashingLEDPin = 6
+ultrasonicResponsePin = 1
+ldrResponsePin = 2
 pinSER1 = 5
 pinSRCLK1 = 6
 pinRCLK1 = 7

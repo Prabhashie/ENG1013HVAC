@@ -42,6 +42,7 @@ Return: None
 2. vice versa when current temperature is in the cold region
 """
 def control_room_environment(currTemp, trend):
+    # pin mode set during system initialization
     if shared.ambientTempLow <= currTemp <= shared.ambientTempHigh: # if current temperature is within goal temp range
         shared.mode = 0 # no fans are on, mode is neither heating nor cooling
         write_to_all_LEDs([0, 0, 0, 0, 0, 0, 0, 0]) # turn off all the LED responses
@@ -65,6 +66,7 @@ Usage of the 2nd thermistor
     ex: if inside is cold and outside is colder, even if we want to move heat in, we shouldn't do this since air outside is colder 
 """
 def control_leds(currTemp, trend):
+    # pin mode set during system initialization
     # CHECK: might need to use a loop to run the fan (light LEDs) for some time
     if (currTemp < shared.ambientTempLow) and (shared.outsideTemperature >= shared.ambientTempLow): # if current temperature is lower than and outside temperature is greater than lower threshold
         shared.mode = 1 # heating mode on
@@ -137,7 +139,6 @@ scrollDuration > displayDuration
 """
 def display_scrolling_string(string, scrollDuration, displayDuration):
     # pin mode set during system initialization
-
     scrollingStartTime = time.time()
     string = string.upper()
     stringLength = len(string)
@@ -164,6 +165,7 @@ Params: string    -> string to print
 Return: None
 """
 def display_four_character_string(string, duration):
+    # pin mode set during system initialization
     string = string.upper() # turn the string to all upper case
     fourCharacterStartTime = time.time()
     while time.time() - fourCharacterStartTime < duration:
@@ -192,9 +194,8 @@ datasheet -> https://www.ti.com/lit/ds/symlink/sn74hc595.pdf
 chaining -> https://docs.arduino.cc/tutorials/communication/guide-to-shift-out
 """
 def display_character(character, digit):
-
+    # pin mode set during system initialization
     segments = shared.CHAR_MAP[character]
-
     for _ in range(4): # turn off all digits
         shared.board.digital_write(shared.pinSER1, 1)
         shared.board.digital_write(shared.pinSRCLK1, 1)
@@ -283,7 +284,7 @@ Return: None
 """
 def alert_change(trend):
     # pin mode set during system initialization
-    if not trend: # if temperature is changing
+    if trend != 0: # if temperature is changing
         # flash LED
         ledArray = [0, 0, 0, 0, 0, 0, 0, 0]
         ledArray[iFlashingLED] = 1
@@ -296,6 +297,9 @@ def alert_change(trend):
             shared.board.digital_write(shared.buzzerPin1, 0)
             shared.board.digital_write(shared.buzzerPin2, 1)
             display_four_character_string("FALL", 0.5)
+    else:
+        shared.board.digital_write(shared.buzzerPin1, 0)
+        shared.board.digital_write(shared.buzzerPin2, 0)
     
     # time.sleep(0.5)
     # clear output pins
@@ -303,9 +307,27 @@ def alert_change(trend):
     # shared.board.digital_write(shared.buzzerPin1, 0)
     # shared.board.digital_write(shared.buzzerPin2, 0)
 
-# TODO: Response to Ultrasonic
+"""
+Function to show response to ultrasonic sensor (door opened)
+Params: None
+Return: None
+"""
+def ultrasonicResponse():
+    # pin mode set during system initialization
+    ledArray = [0, 0, 0, 0, 0, 0, 0, 0]
+    ledArray[iUltrasonicLED] = shared.isDoorOpen
+    write_to_all_LEDs(ledArray)
 
-# TODO: Response to LDR
+"""
+Function to show response to LDR sensor (lighting changed)
+Params: None
+Return: None
+"""
+def ldrResponse():
+    # pin mode set during system initialization
+    ledArray = [0, 0, 0, 0, 0, 0, 0, 0]
+    ledArray[iLDRLED] = shared.isLightingNotAmbient
+    write_to_all_LEDs(ledArray)
 
 """
 Function to force switch fan modes (LEDs)
@@ -313,9 +335,11 @@ Params: None
 Return: None
 """
 def force_control_leds():
+    # pin mode set during system initialization
     ledArray = [0, 0, 0, 0, 0, 0, 0, 0]
     fromMode = ""
     toMode = ""
+    # can have default low mode set if needed
     if shared.mode == 1: # switch to heating
         ledArray[iRedLED] = 1
         fromMode = "cooling"
@@ -332,13 +356,13 @@ def force_control_leds():
     # clear output pins
     # write_to_all_LEDs([0, 0, 0, 0, 0, 0, 0, 0])
 
-
 """
 Function to write data to all response LEDs using shift register
 Params: ledArray -> array containing values to write
 Return: None
 """
 def write_to_all_LEDs(ledArray):
+    # pin mode set during system initialization
     for i in range(len(ledArray)):
         shared.board.digital_write(shared.pinSER3, ledArray[i])
         shared.board.digital_write(shared.pinSRCLK3, 1)

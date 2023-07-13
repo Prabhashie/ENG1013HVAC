@@ -90,7 +90,9 @@ def init_pins():
         shared.blueLEDPin, 
         shared.lowLEDPin, 
         shared.highLEDPin, 
-        shared.flashingLEDPin, 
+        shared.flashingLEDPin,
+        shared.ultrasonicResponsePin,
+        shared.ldrResponsePin,
         # shared.pinSER1, 
         # shared.pinSRCLK1, 
         # shared.pinRCLK1, 
@@ -104,7 +106,7 @@ def init_pins():
         shared.buzzerPin2
     ]
     shared.set_digital_output_pin_mode(pinList)
-    # shared.set_digital_output_pin_mode(shared.digitPins)
+    shared.set_digital_output_pin_mode(shared.digitPins)
 
 """
 Function to clear all arduino pins - pins are cleared then and there after outputs but do this to make sure they are all clear when system shuts down
@@ -120,6 +122,8 @@ def clear_pins():
         shared.lowLEDPin, 
         shared.highLEDPin, 
         shared.flashingLEDPin, 
+        shared.ultrasonicResponsePin,
+        shared.ldrResponsePin,
         # shared.pinSER1, 
         # shared.pinSRCLK1, 
         # shared.pinRCLK1, 
@@ -134,6 +138,8 @@ def clear_pins():
     ]
     for pin in pinList:
         shared.board.digital_write(pin, 0)
+    for pin in shared.digitPins:
+        shared.board.digital_write(pin, 1)
 
 if __name__ == "__main__":
     main()

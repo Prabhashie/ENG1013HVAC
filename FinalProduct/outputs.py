@@ -24,6 +24,7 @@ Return: None
 2. vice versa when current temperature is in the cold region
 """
 def control_room_environment(currTemp, trend):
+    # pin mode set during system initialization
     if shared.ambientTempLow <= currTemp <= shared.ambientTempHigh: # if current temperature is within goal temp range
         shared.mode = 0 # no fans are on, mode is neither heating nor cooling
         # clear output pins
@@ -51,6 +52,7 @@ Usage of the 2nd thermistor
     ex: if inside is cold and outside is colder, even if we want to move heat in, we shouldn't do this since air outside is colder 
 """
 def control_leds(currTemp, trend):
+    # pin mode set during system initialization
     # CHECK: might need to use a loop to run the fan (light LEDs) for some time
     if (currTemp < shared.ambientTempLow) and (shared.outsideTemperature >= shared.ambientTempLow): # if current temperature is lower than and outside temperature is greater than lower threshold
         shared.mode = 1 # heating mode on
@@ -127,7 +129,6 @@ scrollDuration > displayDuration
 """
 def display_scrolling_string(string, scrollDuration, displayDuration):
     # pin mode set during system initialization
-
     scrollingStartTime = time.time()
     string = string.upper()
     stringLength = len(string)
@@ -154,6 +155,7 @@ Params: string    -> string to print
 Return: None
 """
 def display_four_character_string(string, duration):
+    # pin mode set during system initialization
     string = string.upper() # turn the string to all upper case
     fourCharacterStartTime = time.time()
     while time.time() - fourCharacterStartTime < duration:
@@ -178,7 +180,7 @@ Params: character   -> char to display
 Return: None
 """
 def display_character(character, digit):
-
+    # pin mode set during system initialization
     segments = shared.CHAR_MAP[character]
     for i in shared.digitPins:
         shared.board.digital_write(i, 1) # turn off all digits
@@ -258,7 +260,7 @@ Return: None
 """
 def alert_change(trend):
     # pin mode set during system initialization
-    if trend: # if temperature is changing
+    if trend != 0: # if temperature is changing
         # flash LED
         shared.board.digital_write(shared.flashingLEDPin, 1)
         if trend == 1: # increasing temperature
@@ -269,15 +271,33 @@ def alert_change(trend):
             shared.board.digital_write(shared.buzzerPin1, 0)
             shared.board.digital_write(shared.buzzerPin2, 1)
             display_four_character_string("FALL", 0.5)
-    time.sleep(0.5)
+    else:
+        shared.board.digital_write(shared.buzzerPin1, 0)
+        shared.board.digital_write(shared.buzzerPin2, 0)
+
+    # time.sleep(0.5)
     # clear output pins
     # shared.board.digital_write(shared.flashingLEDPin, 0)
     # shared.board.digital_write(shared.buzzerPin1, 0)
     # shared.board.digital_write(shared.buzzerPin2, 0)
 
-# TODO: Response to Ultrasonic
+"""
+Function to show response to ultrasonic sensor (door opened)
+Params: None
+Return: None
+"""
+def ultrasonicResponse():
+    # pin mode set during system initialization
+    shared.board.digital_write(shared.ultrasonicResponsePin, shared.isDoorOpen)
 
-# TODO: Response to LDR
+"""
+Function to show response to LDR sensor (lighting changed)
+Params: None
+Return: None
+"""
+def ldrResponse():
+    # pin mode set during system initialization
+    shared.board.digital_write(shared.ldrResponsePin, shared.isLightingNotAmbient)
 
 """
 Function to force switch fan modes (LEDs)
@@ -285,6 +305,7 @@ Params: None
 Return: None
 """
 def force_control_leds():
+    # pin mode set during system initialization
     if shared.mode == 1: # switch to heating
         print("Setting red")
         shared.board.digital_write(shared.blueLEDPin, 0)
