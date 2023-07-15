@@ -68,7 +68,7 @@ maxHighTemp = 25
 desiredTimeoutDuration = 120
 # user modifiable params
 ambientTempHigh = 25
-ambientTempLow = 20
+ambientTempLow = 22
 systemSettingsAccessDuration = 120 # admin access timeout duration
 # tolerences
 temperatureTolerence = 1 # value by which the temperature thresholds can vary in C
@@ -89,15 +89,18 @@ isDoorOpen = 0 # closed/ open status of the door -> 0 means closed
 temperatureMap = [] # list of tempratures and their recorded times for the last 20s -> to be used for graphing
 lightIntensityMap = [] # list of light intensity value and their recorded times for the last 20s -> to be used for graphing
 systemModeMap = []  # list of system mode values and their recorded times for the last 20s -> to be used for graphing
+
 # digital input pins
-pushButtonPin = 9 # digital push button pin
-triggerPin = 10 # digital ultrasonic trigger pin
-echoPin = 11 # digital ultrasonic echo pin
+pushButtonPin = 2 # digital push button pin
+# digital sonar pins
+triggerPin = 4 # digital ultrasonic trigger pin
+echoPin = 3 # digital ultrasonic echo pin
 # analog input pins
 thermistorPinIn = 0 # analog thermistor pin inside
 thermistorPinOut = 1 # # analog thermistor pin outside
-ldrPin = 1 # analog LDR pin
+ldrPin = 2 # analog LDR pin
 # digital output pins
+"""
 redLEDPin = 2
 blueLEDPin = 3
 lowLEDPin = 4
@@ -105,18 +108,23 @@ highLEDPin = 5
 flashingLEDPin = 6
 ultrasonicResponsePin = 1
 ldrResponsePin = 2
+"""
+# shift reg for 7 seg
 pinSER1 = 5
 pinSRCLK1 = 6
 pinRCLK1 = 7
-pinSER2 = 5
-pinSRCLK2 = 6 
-pinRCLK2 = 7
-pinSER3 = 7
-pinSRCLK3 = 8 
-pinRCLK3 = 9
-buzzerPin1 = 7
-buzzerPin2 = 8
-digitPins = [8, 9, 10, 11]
+# shift reg for thermometer
+pinSER2 = 11
+pinSRCLK2 = 12
+pinRCLK2 = 13
+# shift reg for other response LEDs
+pinSER3 = 8
+pinSRCLK3 = 9
+pinRCLK3 = 10
+
+buzzerPin1 = 17
+buzzerPin2 = 18
+# digitPins = [8, 9, 10, 11]
 
 """
 Function to set pin mode of digital output pins
@@ -152,3 +160,20 @@ Return: None
 """
 def set_sonar_input_pin_mode(pinList):
     board.set_pin_mode_sonar(pinList[0], pinList[1]) 
+
+"""
+Function to clear outputs controlled by shift regs except 7 seg display
+Params: pinSER      -> serial pin
+        pinSRCLK    -> shift reg clock pin
+        pinRCLK     -> reg clock pin
+Return: None
+"""
+def clearSR(pinSER, pinSRCLK, pinRCLK):
+    # print("Clearing shift registers")
+    for _ in range(8): # clear all the segments and turn off
+        board.digital_write(pinSER, 0)
+        board.digital_write(pinSRCLK, 1)
+        board.digital_write(pinSRCLK, 0)
+
+    board.digital_write(pinRCLK, 1)
+    board.digital_write(pinRCLK, 0)

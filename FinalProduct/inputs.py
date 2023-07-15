@@ -14,7 +14,7 @@ import time
 # global vars
 
 vIn = 5 # input voltage in Volts
-r1 = 100000 # known resistance value in Ohms
+r1 = 100000 # known resistance value in Ohms - use 10k or 100k as the thermistor is 10k at 25C (https://forum.arduino.cc/t/thermistor-reading-incorrectly/343362/5)
 # steinhart - hart coefficients
 c1 = 1.009249522e-03
 c2 = 2.378405444e-04
@@ -76,7 +76,6 @@ def is_switch_mode(): # ideally the push button press should generate an interru
     readings = []
     for _ in range(10):
         readings.append(shared.board.digital_read(shared.pushButtonPin)[0])
-
     if sum(readings)/ len(readings) >= 0.5: # switch the mode if button pressed
         print(f"{readings}")
         return True

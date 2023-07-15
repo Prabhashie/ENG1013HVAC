@@ -1,5 +1,6 @@
 import time
 import sys
+import math
 from pymata4 import pymata4
 
 """
@@ -194,4 +195,60 @@ for i in range(100):
 
 board.shutdown()
 sys.exit(0)            
+"""
+
+"""
+vIn = 5 # input voltage in Volts
+r1 = 10000 # known resistance value in Ohms - Use around 10k
+# steinhart - hart coefficients
+c1 = 1.009249522e-03
+c2 = 2.378405444e-04
+c3 = 2.019202697e-07
+
+thermistorPinIn = 0
+thermistorPinOut = 1
+board = board = pymata4.Pymata4()
+board.set_pin_mode_analog_input(thermistorPinIn)
+board.set_pin_mode_analog_input(thermistorPinOut)
+
+def check_temperature(selector):
+    # pin mode set during system initialization
+    if selector: 
+        thermistorLocation = "inside"
+    else:
+        thermistorLocation = "outside"
+
+    startTime = time.time()
+    currTime = time.time()
+    tempVals = []
+
+    while (currTime - startTime < 1): # record temperatures continuously for 1s
+        calculate_temp(selector, tempVals)
+        currTime = time.time()
+    
+    # filter/ average temperature values by averaging readings in the array
+    tempReading = round(sum(tempVals)/ len(tempVals), 1) # temperature stored every 1s
+    print(f"Current temperature {thermistorLocation} the room is {tempReading} C")
+    return tempReading, time.time()
+
+def calculate_temp(selector, tempVals):
+    time.sleep(0.05) # check this time value
+    if selector:
+        thermistorPinReading, _ = board.analog_read(thermistorPinIn)
+    else:
+        thermistorPinReading, _ = board.analog_read(thermistorPinOut)
+    print(thermistorPinReading)
+    vOut = (vIn / 1023) * thermistorPinReading
+    r2 = r1 * ((vIn/vOut) - 1)
+    logR2 = math.log(r2)
+    tF = (1.0 / (c1 + c2*logR2 + c3*logR2**3)) # temperature in Fahrenheit 
+    tC = tF - 273.15 # temperature in Calcius
+    tempVals.append(tC)
+
+# resistor should be pull-down (connected to ground, not power)
+check_temperature(0)
+time.sleep(2)
+check_temperature(1)
+board.shutdown()
+sys.exit(0)
 """

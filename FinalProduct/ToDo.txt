@@ -13,6 +13,8 @@
     # https://docs.arduino.cc/learn/microcontrollers/analog-input
     # https://mryslab.github.io/pymata4/pin_modes/
     # analog pins are used for analog read, analog write is typically done using pwm signals - https://www.arduino.cc/reference/en/#functions
+# resistor power ratings
+    # https://www.electronics-tutorials.ws/resistor/res_7.html
 
 # what is left to test
 # 1. 2nd thermistor - code done

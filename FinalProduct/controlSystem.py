@@ -8,7 +8,7 @@ Date Created:   04/07/2023
 
 # imports
 from inputs import calibrate_sonar_sensor, calibrate_ldr_sensor, check_temperature, is_switch_mode, check_room_door, check_room_lighting
-from outputs import control_room_environment, force_control_leds, display_four_character_string, alert_change, display_temeprature, ultrasonicResponse, ldrResponse
+from outputs_2 import control_room_environment, force_control_leds, display_four_character_string, alert_change, display_temeprature, ultrasonicResponse, ldrResponse
 import shared
 import time
 import sys
@@ -33,7 +33,7 @@ def control_system():
         print("Starting polling loop...\n")
         start_polling_loop()
     except KeyboardInterrupt:
-        print("\nExiting control system...")
+        print("Exiting control system...\n")
         # TODO: turn off all control system outputs (except 7 seg) before shutting down the board - 7 seg used in main
         # shared.board.shutdown() - DO NOT shut the board down here, will affect graphing
         return
@@ -66,7 +66,7 @@ def start_polling_loop():
         display_temeprature(currTemp)
         
         # display temprature on the 7 seg - 4 digit alpha-numeric without scrolling
-        string = str(int(currTemp))
+        string = str(float(currTemp))
         duration = 1 # display for 1s
         display_four_character_string(string, duration)
 
@@ -116,4 +116,4 @@ def start_polling_loop():
             shared.systemModeMap.pop(0)
         
         endLoop = time.time() # record loop end time
-        print(f"\nTime taken by the polling loop: {endLoop - startLoop}")
+        print(f"Time taken by the polling loop: {endLoop - startLoop} \n")

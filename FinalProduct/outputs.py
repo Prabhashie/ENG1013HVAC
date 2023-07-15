@@ -156,6 +156,8 @@ Return: None
 """
 def display_four_character_string(string, duration):
     # pin mode set during system initialization
+    # make sure string has only 4 chars
+    string = string[0:4]
     string = string.upper() # turn the string to all upper case
     fourCharacterStartTime = time.time()
     while time.time() - fourCharacterStartTime < duration:
