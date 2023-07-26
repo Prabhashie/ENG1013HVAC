@@ -310,3 +310,11 @@ check_temperature(0)
 shared.board.shutdown()
 sys.exit(0)
 """
+
+"""
+# (1.44/(3*100k*1uF))
+shared.set_digital_output_pin_mode([shared.buzzerPin1])
+shared.board.digital_write(shared.buzzerPin1, 1)
+time.sleep(2)
+shared.board.digital_write(shared.buzzerPin1, 0)
+"""
